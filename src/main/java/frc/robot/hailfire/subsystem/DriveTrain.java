@@ -1,12 +1,15 @@
 package frc.robot.hailfire.subsystem;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
 import frc.robot.base.util.PosControl;
@@ -15,6 +18,7 @@ import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.device.motor.PhoenixMotorPair;
 import frc.robot.base.device.DoubleSolenoid4150;
+import frc.robot.base.device.Pixy;
 import frc.robot.hailfire.MotorConfig;
 import frc.robot.hailfire.Vision;
 
@@ -30,8 +34,15 @@ public class DriveTrain extends StandardDriveTrain {
             IDs.DriveTrain.LEFT_EVO_SHIFTER_REVERSE
     );
 
+    private final Pixy pixy = new Pixy(3);
+
     private boolean autoShift = false;
     private boolean autoAim = false;
+    
+    public final Trajectory STRAIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test01_straight.json");
+    public final Trajectory TURN_LEFT = Util.loadTrajectory("/home/lvuser/Trajectory/test02_turnLeft.json");
+    public final Trajectory TURN_RIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test03_turnRight.json");
+    public final Trajectory BACK_TO_START = Util.loadTrajectory("/home/lvuser/Trajectory/test04_BackToStart.json");
 
     public DriveTrain(Controller controller) {
         super(
@@ -151,5 +162,13 @@ public class DriveTrain extends StandardDriveTrain {
         return Map.ofEntries(Util.<Double>setter("/vision/data/angleX", 
             a -> this.angleX = a
         ));
+    }
+    
+    @Override
+    public Map<String, Supplier<Object>> NTSets() {
+        Map<String, Supplier<Object>> sets = new HashMap<>();
+        sets.putAll(super.NTSets());
+        sets.putAll(Map.of("pixyReading", pixy::read));
+        return sets;
     }
 }

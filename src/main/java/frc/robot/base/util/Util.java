@@ -2,12 +2,17 @@ package frc.robot.base.util;
 
 import frc.robot.base.device.DoubleSolenoid4150;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
 public class Util {
 
@@ -52,5 +57,15 @@ public class Util {
                 DriverStation.reportError("A setter used the wrong type", false);
             }
         });
+    }
+    
+    public static Trajectory loadTrajectory(String trajectoryJSON) {
+        try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+            return TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+            return new Trajectory();
+        }
     }
 }

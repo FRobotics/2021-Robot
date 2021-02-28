@@ -59,6 +59,7 @@ public abstract class ActionHandler {
     }
 
     public void startActionQueue(List<? extends Action> actionQueue) {
+        if (actionQueue.size() == 0) return;
         this.queuePos = 1;
         this.startAction(actionQueue.get(0));
         this.actionQueue = actionQueue;

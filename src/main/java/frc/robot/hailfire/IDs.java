@@ -25,6 +25,7 @@ public class IDs {
         public static final int MOTOR = 12;
         public static final int ARM_FORWARD = 7;
         public static final int ARM_REVERSE = 6;
+        public static final int SENSOR = 2;
     }
 
     public static class Climber {

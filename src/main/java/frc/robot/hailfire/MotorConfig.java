@@ -38,11 +38,11 @@ public class MotorConfig {
     public static class Shooter {
         public static EncoderMotorConfig CONFIG = new EncoderMotorConfig(
                 2048 * 4,
-                .01611,
-                .01611,
-                .0012,
-                .01,
-                800
+                .0154, // f
+                .0060, // p
+                .0001, // i
+                .0001, // d
+                200 // i zone
         );
     }
 }

@@ -9,17 +9,17 @@ public class Pixy {
     private static final double pixyVoltageThreshold = 0.2d;
     private AnalogInput positionInput;
 
-    public Pixy() {
+    public Pixy(int channel) {
         targetFound = false;
         targetX = 0.d;
-        positionInput = new AnalogInput(3);
+        positionInput = new AnalogInput(channel);
     }
 
-    public double GetTarget() {
+    public double getTarget() {
         return targetX;
     }
 
-    public boolean FoundTarget() {
+    public boolean foundTarget() {
         return targetFound;
     }
 
@@ -28,7 +28,7 @@ public class Pixy {
      * Returns 0.0 if no object is found
      * Returns the position of the target in pixels if it is found
      */
-    public double Read() {
+    public double read() {
         double voltage = positionInput.getAverageVoltage();
         if (voltage < pixyVoltageThreshold) {
             targetFound = false;

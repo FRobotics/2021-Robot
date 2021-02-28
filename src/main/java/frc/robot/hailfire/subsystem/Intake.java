@@ -2,6 +2,7 @@ package frc.robot.hailfire.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
@@ -20,6 +21,8 @@ public class Intake extends Subsystem {
 
     private DoubleSolenoid4150 solenoid = new DoubleSolenoid4150(IDs.Intake.ARM_FORWARD, IDs.Intake.ARM_REVERSE);
     private Motor spinner = new PhoenixMotor(new VictorSPX(IDs.Intake.MOTOR));
+    
+    private DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
     public Intake(Controller controller) {
         super("intake");
@@ -57,7 +60,8 @@ public class Intake extends Subsystem {
     public Map<String, Supplier<Object>> NTSets() {
         return Map.of(
             "solenoid", Util.solenoidNTV(solenoid),
-            "motor", spinner::getOutputPercent
+            "motor", spinner::getOutputPercent,
+            "sensor", sensor::get
         );
     }
 

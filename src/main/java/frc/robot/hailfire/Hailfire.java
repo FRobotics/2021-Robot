@@ -12,8 +12,11 @@ import frc.robot.hailfire.subsystem.DriveTrain;
 import frc.robot.hailfire.subsystem.Intake;
 import frc.robot.hailfire.subsystem.Shooter;
 import frc.robot.base.input.Controller;
+import frc.robot.base.device.Pixy;
 
 import java.util.List;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused")
 public class Hailfire extends Robot {
@@ -21,16 +24,17 @@ public class Hailfire extends Robot {
     private final Controller driveController = registerController(0);
     private final Controller shooterController = registerController(1);
     private final Controller auxiliaryController = registerController(2);
-
+    
     private final DriveTrain driveTrain = register(new DriveTrain(driveController));
     private final Shooter shooter = register(new Shooter(shooterController));
     private final Intake intake = register(new Intake(auxiliaryController));
     private final Climber climber = register(new Climber(auxiliaryController));
-
+    
     private PosControl drivePosControl = new PosControl(10, 2, 0.1, 0.5, 5);
-
+    
     public Hailfire() {
         this.setAutoActions(auto1);
+        SmartDashboard.getEntry("Auto List").setStringArray(autoList);
     }
 
     @Override
@@ -45,18 +49,22 @@ public class Hailfire extends Robot {
         Vision.update();
     }
 
+    private final String[] autoList = new String[]{
+        "None", "Auto 1", "Trajectory Test"
+    };
+
     @Override
     public void disabledPeriodic() {
         super.disabledPeriodic();
 
-        switch((int)NTHandler.getRobotEntry("autoProgram").getDouble(0)) {
+        switch(SmartDashboard.getEntry("Auto Selector").getString("")) {
             default:
                 setAutoActions(List.of());
                 break;
-            case 1:
+            case "Auto 1":
                 setAutoActions(auto1);
                 break;
-            case 2:
+            case "Trajectory Test":
                 setAutoActions(auto2);
                 break;
         }
@@ -85,8 +93,12 @@ public class Hailfire extends Robot {
     // follow path
     // note: if the trajectory isn't set / couldn't load it should theoretically just do nothing
     private final List<? extends Action> auto2 = List.of(
-        // TODO: file path there
-        new SetupAction(() -> driveTrain.initTrajectory("FILE PATH HERE") , () -> driveTrain.startAction(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> driveTrain.startTrajectory(driveTrain.TURN_RIGHT)
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
             new Action(
                 driveTrain::followPath,
                 driveTrain::finishedPath

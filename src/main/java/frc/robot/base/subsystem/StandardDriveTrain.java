@@ -7,15 +7,10 @@ import frc.robot.base.device.motor.EncoderMotorConfig;
 import frc.robot.base.input.Axis;
 import frc.robot.base.input.Controller;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
 /**
  * A drive train with two encoder motors and a rate limiter for each motor that is controlled with a controller
@@ -276,16 +271,6 @@ public class StandardDriveTrain extends Subsystem {
     private Trajectory trajectory = new Trajectory();
     private long pathStartTime = 0;
 
-    public void initTrajectory(String trajectoryJSON) {
-        try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-            pathStartTime = System.currentTimeMillis();
-        } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-        }
-    }
-    
     double ftPerMeter = 3.28084;
     
     public void followPath() {
@@ -304,9 +289,15 @@ public class StandardDriveTrain extends Subsystem {
         
         setLeftVelocity(leftSpeed * ftPerMeter);
         setRightVelocity(rightSpeed * ftPerMeter);
+        
     }
     
     public boolean finishedPath() {
-        return System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() / 1000;
+        return System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() * 1000;
+    }
+    
+    public void startTrajectory(Trajectory t) {
+        this.trajectory = t;
+        this.pathStartTime = System.currentTimeMillis();
     }
 }

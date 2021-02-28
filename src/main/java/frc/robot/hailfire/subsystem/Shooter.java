@@ -3,6 +3,7 @@ package frc.robot.hailfire.subsystem;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Relay;
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.Subsystem;
@@ -27,6 +28,7 @@ public class Shooter extends Subsystem {
     private EncoderMotor rightMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.RIGHT_MOTOR), MotorConfig.Shooter.CONFIG).invert();
 
     private Motor pitchMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.PITCH_MOTOR));
+    private Encoder pitchEncoder = new Encoder(3, 4);
     private Motor carousel = new PhoenixMotor(new TalonSRX(IDs.Shooter.CAROUSEL_MOTOR)).invert();
     private DigitalInput carouselSwitch = new DigitalInput(1);
     private boolean carouselHit = false;
@@ -34,7 +36,6 @@ public class Shooter extends Subsystem {
     private Relay spike = new Relay(0);
 
     // configurable variables for tuning from dash
-
     public double leftF;
     public double leftP;
     public double leftI;
@@ -169,19 +170,21 @@ public class Shooter extends Subsystem {
 
     @Override
     public Map<String, Supplier<Object>> NTSets() {
-        return Map.of(
-                "leftPercent", leftMotor::getOutputPercent,
-                "leftVelocity", leftMotor::getVelocity,
-                "rightPercent", rightMotor::getOutputPercent,
-                "rightVelocity", rightMotor::getVelocity,
+        return Map.ofEntries(
+                Map.entry("leftPercent", leftMotor::getOutputPercent),
+                Map.entry("leftVelocity", leftMotor::getVelocity),
+                Map.entry("rightPercent", rightMotor::getOutputPercent),
+                Map.entry("rightVelocity", rightMotor::getVelocity),
 
-                "pitchOutput", pitchMotor::getOutputPercent,
-                "carouselOutput", carousel::getOutputPercent,
-                "carouselSwitch", carouselSwitch::get,
-                "lights", () -> spike.get() == Relay.Value.kForward,
+                Map.entry("pitchOutput", pitchMotor::getOutputPercent),
+                Map.entry("carouselOutput", carousel::getOutputPercent),
+                Map.entry("carouselSwitch", carouselSwitch::get),
+                Map.entry("lights", () -> spike.get() == Relay.Value.kForward),
                 
-                "leftDistance", leftMotor::getDistance,
-                "rightDistance", rightMotor::getDistance
+                Map.entry("leftDistance", leftMotor::getDistance),
+                Map.entry("rightDistance", rightMotor::getDistance),
+
+                Map.entry("pitchDistance", pitchEncoder::get)
         );
     }
 
