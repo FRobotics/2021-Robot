@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
-import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.device.motor.PhoenixMotor;
 import frc.robot.base.device.DoubleSolenoid4150;
@@ -17,16 +16,13 @@ import java.util.function.Supplier;
 
 public class Intake extends Subsystem {
 
-    private Controller controller;
-
     private DoubleSolenoid4150 solenoid = new DoubleSolenoid4150(IDs.Intake.ARM_FORWARD, IDs.Intake.ARM_REVERSE);
     private Motor spinner = new PhoenixMotor(new VictorSPX(IDs.Intake.MOTOR));
     
     private DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
-    public Intake(Controller controller) {
+    public Intake() {
         super("intake");
-        this.controller = controller;
     }
 
     @Override
@@ -37,19 +33,19 @@ public class Intake extends Subsystem {
     @Override
     public void control() {
 
-        if (controller.buttonPressed(Controls.Intake.ARM_UP)) {
+        if (Controls.Intake.ARM_UP()) {
             solenoid.retract();
         }
 
-        if (controller.buttonPressed(Controls.Intake.ARM_DOWN)) {
+        if (Controls.Intake.ARM_DOWN()) {
             solenoid.extend();
         }
         
         // spin if solenoid is out
 
-        if (controller.buttonDown(Controls.Intake.SPIN_FORWARD) && solenoid.isExtended()) {
+        if (Controls.Intake.SPIN_FORWARD() && solenoid.isExtended()) {
             spinner.setPercentOutput(1);
-        } else if(controller.buttonDown(Controls.Intake.SPIN_BACKWARD) && solenoid.isExtended()) {
+        } else if(Controls.Intake.SPIN_BACKWARD() && solenoid.isExtended()) {
             spinner.setPercentOutput(-1);
         } else {
             spinner.setPercentOutput(0);

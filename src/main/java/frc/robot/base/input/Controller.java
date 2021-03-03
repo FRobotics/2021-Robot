@@ -20,6 +20,10 @@ public class Controller {
             buttonsPressed.put(id, false);
         }
     }
+    
+    public Controller(int port) {
+        this(new Joystick(port));
+    }
 
     /**
      * @param button the button you want to specify

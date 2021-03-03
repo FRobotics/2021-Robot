@@ -10,7 +10,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.Util;
@@ -24,7 +23,6 @@ import frc.robot.hailfire.Vision;
 
 public class DriveTrain extends StandardDriveTrain {
 
-    private Controller controller;
     public final ADIS16448_IMU gyro = new ADIS16448_IMU();
 
     private static final double LOW_MAX_SPEED = 5.5;
@@ -44,7 +42,7 @@ public class DriveTrain extends StandardDriveTrain {
     public final Trajectory TURN_RIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test03_turnRight.json");
     public final Trajectory BACK_TO_START = Util.loadTrajectory("/home/lvuser/Trajectory/test04_BackToStart.json");
 
-    public DriveTrain(Controller controller) {
+    public DriveTrain() {
         super(
                 new PhoenixMotorPair(
                         new TalonSRX(IDs.DriveTrain.LEFT_MOTOR_MASTER),
@@ -57,7 +55,6 @@ public class DriveTrain extends StandardDriveTrain {
                         MotorConfig.DriveTrain.LOW_CONFIG
                 ).invert(),
                 10, 19, LOW_MAX_SPEED);
-        this.controller = controller;
         setMaxScaleShift(-1.35); // this makes setVelOrPercent scale better for velocity control
     }
     
@@ -70,16 +67,16 @@ public class DriveTrain extends StandardDriveTrain {
 
         double turnSpeed = 0.2;
 
-        if (controller.buttonDown(Controls.DriveTrain.TURN_RIGHT)){
+        if (Controls.DriveTrain.TURN_RIGHT()){
             setLeftVelOrPercent(-turnSpeed);
             setRightVelOrPercent(turnSpeed);
             this.autoAim = false;
-        } else if (controller.buttonDown(Controls.DriveTrain.TURN_LEFT)){
+        } else if (Controls.DriveTrain.TURN_LEFT()){
             setLeftVelOrPercent(turnSpeed);
             setRightVelOrPercent(-turnSpeed);
             this.autoAim = false;
         } else {
-            if (controller.buttonPressed(Controls.DriveTrain.AUTO_AIM)) {
+            if (Controls.DriveTrain.AUTO_AIM()) {
                 // TODO: these are complete guesses
                 posControl = new PosControl(angleX, 0.1, 0.2, 0.5, 5);
                 this.autoAim = true;
@@ -91,23 +88,23 @@ public class DriveTrain extends StandardDriveTrain {
                 this.setLeftVelOrPercent(-calculatedSpeed);
                 this.setRightVelOrPercent(calculatedSpeed);
             } else {
-                super.standardControl(controller);
+                super.standardControl(Controls.drive);
             }
         }
 
         // shift gears
 
-        if(controller.buttonPressed(Controls.DriveTrain.LOW_GEAR)){
+        if(Controls.DriveTrain.LOW_GEAR()){
             shiftToLowGear();
             autoShift = false;
         }
 
-        if (controller.buttonPressed(Controls.DriveTrain.HIGH_GEAR)) {
+        if (Controls.DriveTrain.HIGH_GEAR()) {
             shiftToHighGear();
             autoShift = false;
         }
 
-        if(controller.getPov(Controls.DriveTrain.AUTO_SHIFT) >= 0) {
+        if(Controls.DriveTrain.AUTO_SHIFT()) {
             autoShift = true;
         }
 

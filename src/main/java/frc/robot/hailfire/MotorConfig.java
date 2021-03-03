@@ -5,13 +5,13 @@ import frc.robot.base.device.motor.EncoderMotorConfig;
 public class MotorConfig {
     public static class DriveTrain {
         public static final EncoderMotorConfig LOW_CONFIG = new EncoderMotorConfig(
-                3f/12f,
-                4 * 360,
-                2.02895,
-                1.76430,
-                0.00264,
-                0.02205,
-                150
+                3f/12f, // wheel radius
+                4 * 360, // counts per rev
+                2.02895, // f
+                1.76430, // p
+                0.00264, // i
+                0.02205, // d
+                150 // i zone
         );
         public static final EncoderMotorConfig HIGH_CONFIG = new EncoderMotorConfig(
                 3f/12f,

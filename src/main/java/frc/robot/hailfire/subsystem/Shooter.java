@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Relay;
-import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.Util;
@@ -21,8 +20,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Shooter extends Subsystem {
-
-    private Controller controller;
 
     private EncoderMotor leftMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.LEFT_MOTOR), MotorConfig.Shooter.CONFIG);
     private EncoderMotor rightMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.RIGHT_MOTOR), MotorConfig.Shooter.CONFIG).invert();
@@ -56,9 +53,8 @@ public class Shooter extends Subsystem {
     private boolean oldUpdateFPID = false;
     private boolean updateFPID = false;
 
-    public Shooter(Controller controller) {
+    public Shooter() {
         super("shooter");
-        this.controller = controller;
     }
     
     @Override
@@ -97,7 +93,7 @@ public class Shooter extends Subsystem {
     @Override
     public void control() {
 
-        if (controller.buttonDown(Controls.Shooter.SHOOT)) {
+        if (Controls.Shooter.SHOOT()) {
             shoot(true);
         } else {
             spinForShooter = false;
@@ -113,16 +109,16 @@ public class Shooter extends Subsystem {
         // Either way, it works :)
 
         // manual control
-        if (controller.getAxis(Controls.Shooter.MANUAL_CAROUSEL) > 0.5) {
+        if (Controls.Shooter.MANUAL_CAROUSEL_RIGHT()) {
             carouselOutput = 0.7;
             autoCarousel = false;
-        } else if (controller.getAxis(Controls.Shooter.MANUAL_CAROUSEL) < -0.5) {
+        } else if (Controls.Shooter.MANUAL_CAROUSEL_LEFT()) {
             carouselOutput = -0.7;
             autoCarousel = false;
-        } else if (controller.getAxis(Controls.Shooter.AUTO_CAROUSEL_LEFT) > 0.5) { // semi manual (go to limit switch)
+        } else if (Controls.Shooter.AUTO_CAROUSEL_LEFT()) { // semi manual (go to limit switch)
             carouselOutput = -0.7;
             autoCarousel = true;
-        } else if (controller.getAxis(Controls.Shooter.AUTO_CAROUSEL_RIGHT) > 0.5) {
+        } else if (Controls.Shooter.AUTO_CAROUSEL_RIGHT()) {
             carouselOutput = 0.7;
             autoCarousel = true;
         } else if (autoCarousel) {
@@ -144,28 +140,68 @@ public class Shooter extends Subsystem {
 
         carousel.setPercentOutput(carouselOutput);
 
-        /*if (driveController.axisDown(Axis.LEFT_TRIGGER)) {
-            EncoderMotorConfig leftConfig = new EncoderMotorConfig(2048 * 4, 0.01611, leftP, leftI, leftD, 800);
-            leftMotor.setConfig(leftConfig);
-            EncoderMotorConfig rightConfig = new EncoderMotorConfig(2048 * 4, 0.01611, rightP, rightI, rightD, 800);
-            rightMotor.setConfig(rightConfig);
-        }*/
-
         // move carousel up/down
 
-        if (controller.buttonDown(Controls.Shooter.CAROUSEL_DOWN)) {
+        if (Controls.Shooter.CAROUSEL_DOWN()) {
+            autoPitch = false;
             pitchMotor.setPercentOutput(.125);
-        } else if (controller.buttonDown(Controls.Shooter.CAROUSEL_UP)) {
+        } else if (Controls.Shooter.CAROUSEL_UP()) {
+            autoPitch = false;
             pitchMotor.setPercentOutput(-0.5);
         } else {
-            pitchMotor.setPercentOutput(0);
+            if (Controls.Shooter.TEST_PITCH()) {
+                autoPitch = true;
+                pitchPosControl.target = pitchTarget / 600;
+                pitchPosControl.reset();
+            }
+            if (autoPitch) {
+                pitchAim();
+            } else {
+                pitchMotor.setPercentOutput(0);
+            }
         }
 
         // turn on lights
 
-        if (controller.buttonPressed(Controls.Shooter.TOGGLE_LIGHTS)) {
+        if (Controls.Shooter.TOGGLE_LIGHTS()) {
             spike.set(spike.get() == Relay.Value.kForward ? Relay.Value.kOff : Relay.Value.kForward);
         }
+    }
+    
+    private long shooterStartTime = 0;
+
+    public void shoot(boolean controlled) {
+        // spin up motors and then carousel to shoot
+        double carouselSpeed = .7;
+        if (System.currentTimeMillis() - shooterStartTime > 2000 && !autoCarousel) {
+            if (controlled) {
+                carouselOutput = carouselSpeed;
+                spinForShooter = true;
+            } else {
+                carousel.setPercentOutput(carouselSpeed);
+            }
+        } else if (!controlled) {
+            carousel.setPercentOutput(0);
+        }
+
+        leftMotor.setVelocity(leftSpeedDemand); // 2600
+        rightMotor.setVelocity(rightSpeedDemand); // 3000button
+    }
+    
+    boolean autoPitch = false;
+    PosControl pitchPosControl = new PosControl(0, 0.2, 0.01, 0.1, 1);
+    double pitchTarget = 0;
+
+    public void pitchAim() {
+        if(pitchPosControl.isFinished()) {
+            autoPitch = false;
+            return;
+        }
+        var output = pitchPosControl.getSpeed(pitchEncoder.getDistance()/600);
+        if(output > 0) {
+            output = Math.min(1, output * 5);
+        }
+        pitchMotor.setPercentOutput(-output);
     }
 
     @Override
@@ -184,7 +220,7 @@ public class Shooter extends Subsystem {
                 Map.entry("leftDistance", leftMotor::getDistance),
                 Map.entry("rightDistance", rightMotor::getDistance),
 
-                Map.entry("pitchDistance", pitchEncoder::get)
+                Map.entry("pitchDistance", pitchEncoder::getDistance)
         );
     }
 
@@ -203,38 +239,8 @@ public class Shooter extends Subsystem {
 
                 Util.<Double>setter("leftSpeedDemand", d -> leftSpeedDemand = d),
                 Util.<Double>setter("rightSpeedDemand", d -> rightSpeedDemand = d),
-                Util.<Boolean>setter("updateFPID", b -> updateFPID = b)
+                Util.<Boolean>setter("updateFPID", b -> updateFPID = b),
+                Util.<Double>setter("pitchTarget", p -> pitchTarget = p)
         );
     }
-
-    private long shooterStartTime = 0;
-
-    public void shoot(boolean controlled) {
-        // spin up motors and then carousel to shoot
-        double carouselSpeed = .25;
-        if (System.currentTimeMillis() - shooterStartTime > 2000 && !autoCarousel) {
-            if (controlled) {
-                carouselOutput = carouselSpeed;
-                spinForShooter = true;
-            } else {
-                carousel.setPercentOutput(carouselSpeed);
-            }
-        } else if (!controlled) {
-            carousel.setPercentOutput(0);
-        }
-
-        leftMotor.setVelocity(leftSpeedDemand); // 2600
-        rightMotor.setVelocity(rightSpeedDemand); // 3000
-    }
-
-    PosControl aimPosControl = new PosControl(0, 1, 0.5, 0.2, 0.5);
-
-    /*
-    public void autoAim() {
-        if(Vision.isStale()) {
-            double calculatedSpeed = aimPosControl.getSpeed(Vision.getPitchOffset());
-
-        }
-    }
-     */
 }

@@ -57,6 +57,10 @@ public abstract class ActionHandler {
     public Action getAction() {
         return action;
     }
+    
+    public Action getDefaultAction() {
+        return this.defaultAction;
+    }
 
     public void startActionQueue(List<? extends Action> actionQueue) {
         if (actionQueue.size() == 0) return;

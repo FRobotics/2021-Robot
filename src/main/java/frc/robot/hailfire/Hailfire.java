@@ -20,28 +20,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused")
 public class Hailfire extends Robot {
-
-    private final Controller driveController = registerController(0);
-    private final Controller shooterController = registerController(1);
-    private final Controller auxiliaryController = registerController(2);
     
-    private final DriveTrain driveTrain = register(new DriveTrain(driveController));
-    private final Shooter shooter = register(new Shooter(shooterController));
-    private final Intake intake = register(new Intake(auxiliaryController));
-    private final Climber climber = register(new Climber(auxiliaryController));
+    private final DriveTrain driveTrain = register(new DriveTrain());
+    private final Shooter shooter = register(new Shooter());
+    private final Intake intake = register(new Intake());
+    private final Climber climber = register(new Climber());
     
-    private PosControl drivePosControl = new PosControl(10, 2, 0.1, 0.5, 5);
+    private PosControl drivePosControl = new PosControl(10, 1, 0.1, 0.5, 5);
     
     public Hailfire() {
         this.setAutoActions(auto1);
         SmartDashboard.getEntry("Auto List").setStringArray(autoList);
+        registerController(Controls.drive);
+        registerController(Controls.shooter);
+        registerController(Controls.aux);
     }
 
     @Override
     public void robotPeriodic() {
         super.robotPeriodic();
 
-        if (auxiliaryController.getPov(Pov.D_PAD) >= 0) {
+        if (Controls.aux.getPov(Pov.D_PAD) >= 0) {
             var cameraNum = NTHandler.getVisionEntry("cameraNumber");
             cameraNum.setValue(cameraNum.getDouble(-1) + 1);
         }
@@ -77,7 +76,9 @@ public class Hailfire extends Robot {
     private final List<? extends Action> auto1 = List.of(
             new SetupAction(() -> driveTrain.startAction(
                     new Action(
-                            () -> driveTrain.setVelocity(drivePosControl.getSpeed(-driveTrain.getAverageDistance())),
+                            () -> {
+                                driveTrain.setPercentOutput(drivePosControl.getSpeed(driveTrain.getAverageDistance())/5.5);
+                            },
                             drivePosControl::isFinished
                     )
             ), driveTrain::isFinished),
