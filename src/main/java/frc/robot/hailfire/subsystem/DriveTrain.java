@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -43,6 +44,17 @@ public class DriveTrain extends StandardDriveTrain {
     public final Trajectory TURN_LEFT = Util.loadTrajectory("/home/lvuser/Trajectory/test02_turnLeft.json");
     public final Trajectory TURN_RIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test03_turnRight.json");
     public final Trajectory BACK_TO_START = Util.loadTrajectory("/home/lvuser/Trajectory/test04_BackToStart.json");
+    
+    public static PhoenixMotorPair createMotor(int master, int follower) {
+        var motor = new PhoenixMotorPair(
+            new TalonSRX(master),
+            new VictorSPX(follower),
+            MotorConfig.DriveTrain.LOW_CONFIG
+        );
+        motor.setNeutralMode(NeutralMode.Brake);
+        motor.setRampTime(0.5);
+        return motor;
+    }
 
     public DriveTrain() {
         super(

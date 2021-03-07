@@ -22,12 +22,9 @@ public class PhoenixMotor implements EncoderMotor {
     public PhoenixMotor(BaseMotorController motor, EncoderMotorConfig config) {
         this.motor = motor;
         this.motor.configFactoryDefault();
-        this.motor.setNeutralMode(NeutralMode.Brake);
         this.motor.configNominalOutputForward(0);
         this.motor.configNominalOutputReverse(0);
         this.motor.configNeutralDeadband(.001);
-        this.motor.configOpenloopRamp(.5);
-        this.motor.configClosedloopRamp(.5);
         this.motor.setSensorPhase(false);
         if(config != null) {
             setConfig(config);
@@ -119,6 +116,15 @@ public class PhoenixMotor implements EncoderMotor {
 
     public void follow(PhoenixMotor motor) {
         this.motor.follow(motor.motor);
+    }
+    
+    public void setNeutralMode(NeutralMode mode) {
+        this.motor.setNeutralMode(mode);
+    }
+    
+    public void setRampTime(double time) {
+        this.motor.configOpenloopRamp(time);
+        this.motor.configClosedloopRamp(time);
     }
 
 }
