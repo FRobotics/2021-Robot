@@ -69,7 +69,6 @@ public class DriveTrain extends StandardDriveTrain {
                         MotorConfig.DriveTrain.LOW_CONFIG
                 ).invert(),
                 10, 19, LOW_MAX_SPEED);
-        setMaxScaleShift(-1.35); // this makes setVelOrPercent scale better for velocity control
     }
     
     private PosControl posControl;
