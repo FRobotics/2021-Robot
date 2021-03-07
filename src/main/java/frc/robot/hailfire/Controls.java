@@ -26,6 +26,7 @@ public class Controls {
         public static boolean HIGH_GEAR() { return drive.buttonPressed(Button.RIGHT_BUMPER); }
         public static boolean AUTO_SHIFT() { return drive.getPov(Pov.D_PAD) >= 0; }
         public static boolean AUTO_AIM() { return drive.buttonDown(Button.Y); }
+        public static boolean TOGGLE_REVERSE() { return drive.buttonPressed(Button.A); }
     }
 
     public static class Intake {

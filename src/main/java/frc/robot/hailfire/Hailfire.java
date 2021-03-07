@@ -7,6 +7,7 @@ import frc.robot.base.action.SetupAction;
 import frc.robot.base.action.TimedAction;
 import frc.robot.base.input.Pov;
 import frc.robot.base.util.PosControl;
+import frc.robot.base.util.DriveUtil;
 import frc.robot.hailfire.subsystem.Climber;
 import frc.robot.hailfire.subsystem.DriveTrain;
 import frc.robot.hailfire.subsystem.Intake;
@@ -96,13 +97,13 @@ public class Hailfire extends Robot {
     private final List<? extends Action> auto2 = List.of(
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
-                () -> driveTrain.startTrajectory(driveTrain.TURN_RIGHT)
+                () -> DriveUtil.startTrajectory(driveTrain.TURN_RIGHT)
             )
         ), driveTrain::isFinished),
         new SetupAction(() -> driveTrain.startAction(
             new Action(
-                driveTrain::followPath,
-                driveTrain::finishedPath
+                () -> {DriveUtil.followPath(driveTrain);},
+                DriveUtil::finishedPath
             )
         ), driveTrain::isFinished)
     );

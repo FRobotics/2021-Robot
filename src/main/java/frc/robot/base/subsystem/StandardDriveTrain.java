@@ -1,16 +1,10 @@
 package frc.robot.base.subsystem;
 
-import frc.robot.base.util.Util;
-import frc.robot.base.Controls;
 import frc.robot.base.device.motor.EncoderMotor;
 import frc.robot.base.device.motor.EncoderMotorConfig;
-import frc.robot.base.input.Axis;
-import frc.robot.base.input.Controller;
 
 import java.util.Map;
 import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
 
 /**
  * A drive train with two encoder motors and a rate limiter for each motor that is controlled with a controller
@@ -19,18 +13,12 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
  */
 public class StandardDriveTrain extends Subsystem {
 
-    private EncoderMotor leftMotor; // 1.565
-    private EncoderMotor rightMotor; // 1.565
-    //private RateLimiter leftRateLimiter;
-    //private RateLimiter rightRateLimiter;
-
+    private EncoderMotor leftMotor;
+    private EncoderMotor rightMotor;
     private double absoluteMaxSpeed;
     private double currentMaxSpeed;
-    private double controllerDeadBand = 0.2;
-    private int controllerPower = 2;
 
     private boolean useClosedLoop = true;
-    private boolean reverseControl = false;
 
     public StandardDriveTrain(
             EncoderMotor leftMotor, EncoderMotor rightMotor,
@@ -38,8 +26,6 @@ public class StandardDriveTrain extends Subsystem {
         super("driveTrain");
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
-        //this.rightRateLimiter = new RateLimiter(maxAcceleration / 50);
-        //this.leftRateLimiter = new RateLimiter(maxAcceleration / 50);
         this.currentMaxSpeed = startMaxSpeed;
         this.absoluteMaxSpeed = maxSpeed;
     }
@@ -116,41 +102,6 @@ public class StandardDriveTrain extends Subsystem {
         }
     }
 
-    public void standardControl(Controller controller) {
-        int r = this.reverseControl ? -1 : 1;
-        double fb = - r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD), controllerDeadBand, controllerPower);
-        double lr = r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand, controllerPower);
-
-        double left = fb - lr;
-        double right = fb + lr;
-        
-        if (useClosedLoop) {
-            setLeftVelocity(left * absoluteMaxSpeed);
-            setRightVelocity(right * absoluteMaxSpeed);
-        } else {
-            setLeftPercentOutput(left);
-            setRightPercentOutput(right);
-        }
-
-        if (controller.buttonPressed(Controls.DriveTrain.USE_CLOSED_LOOP)) {
-            this.useClosedLoop = true;
-        }
-
-        if (controller.buttonPressed(Controls.DriveTrain.DONT_USE_CLOSED_LOOP)) {
-            this.useClosedLoop = false;
-        }
-
-        if (controller.buttonPressed(Controls.DriveTrain.TOGGLE_REVERSE)) {
-            this.toggleReversed();
-        }
-        
-        
-
-        if(controller.getAxis(Axis.LEFT_TRIGGER) > 0.5) {
-            this.resetDistance();
-        }
-    }
-
     public double safeVelocity(double velocity) {
         return Math.max(Math.min(velocity, currentMaxSpeed), -currentMaxSpeed);
     }
@@ -162,8 +113,8 @@ public class StandardDriveTrain extends Subsystem {
     @Override
     public void stop() {
         setPercentOutput(0);
-        //this.leftMotor.resetDistance();
-        //this.rightMotor.resetDistance();
+        this.leftMotor.resetDistance();
+        this.rightMotor.resetDistance();
     }
 
     @Override
@@ -201,14 +152,6 @@ public class StandardDriveTrain extends Subsystem {
 
     public boolean isClosedLoop() { // added 3/7 KW
         return this.useClosedLoop;
-    }
-
-    public void setControllerDeadBand(double controllerDeadBand) {
-        this.controllerDeadBand = controllerDeadBand;
-    }
-
-    public void setControllerPower(int controllerPower) {
-        this.controllerPower = controllerPower;
     }
 
     public double getLeftDemand() {
@@ -258,46 +201,5 @@ public class StandardDriveTrain extends Subsystem {
     public void resetDistance() {
         this.leftMotor.resetDistance();
         this.rightMotor.resetDistance();
-    }
-    
-    public void setReversed(boolean reverse) {
-        this.reverseControl = reverse;
-    }
-
-    public void toggleReversed() {
-        this.reverseControl = !this.reverseControl;
-    }
-    
-    private Trajectory trajectory = new Trajectory();
-    private long pathStartTime = 0;
-
-    double ftPerMeter = 3.28084;
-    
-    public void followPath() {
-        var state = trajectory.sample(System.currentTimeMillis() - pathStartTime);
-        // this math is taken from looking at how they do it in the RamseteCommand class
-        // around line 140 they do stuff with toWheelSpeeds which is where the math is
-        var accel = state.accelerationMetersPerSecondSq;
-        var curve = state.curvatureRadPerMeter * accel;
-        /* "The track width of the drivetrain. Theoretically, this is the distance
-   *     between the left wheels and right wheels. However, the empirical value may be larger than
-   *     the physical measured value due to scrubbing effects." taken from DifferentialDriveKinematics */
-        // TODO: set this value correctly (keeping units in mind)
-        var trackWidthMeters = 1;
-        var leftSpeed = accel - trackWidthMeters / 2 * curve;
-        var rightSpeed = accel + trackWidthMeters / 2 * curve;
-        
-        setLeftVelocity(leftSpeed * ftPerMeter);
-        setRightVelocity(rightSpeed * ftPerMeter);
-        
-    }
-    
-    public boolean finishedPath() {
-        return System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() * 1000;
-    }
-    
-    public void startTrajectory(Trajectory t) {
-        this.trajectory = t;
-        this.pathStartTime = System.currentTimeMillis();
     }
 }

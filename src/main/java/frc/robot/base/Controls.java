@@ -9,6 +9,5 @@ public class Controls {
         public static Axis TURN_LEFT_RIGHT = Axis.RIGHT_X;
         public static Button USE_CLOSED_LOOP = Button.START;
         public static Button DONT_USE_CLOSED_LOOP = Button.BACK;
-        public static Button TOGGLE_REVERSE = Button.A;
     }
 }

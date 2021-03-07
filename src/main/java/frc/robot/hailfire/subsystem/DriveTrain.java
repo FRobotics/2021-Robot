@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.subsystem.StandardDriveTrain;
+import frc.robot.base.util.DriveUtil;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
@@ -23,6 +24,7 @@ import frc.robot.hailfire.Vision;
 
 public class DriveTrain extends StandardDriveTrain {
 
+    private boolean reverseControl = false;
     public final ADIS16448_IMU gyro = new ADIS16448_IMU();
 
     private static final double LOW_MAX_SPEED = 5.5;
@@ -88,7 +90,10 @@ public class DriveTrain extends StandardDriveTrain {
                 this.setLeftVelOrPercent(-calculatedSpeed);
                 this.setRightVelOrPercent(calculatedSpeed);
             } else {
-                super.standardControl(Controls.drive);
+                DriveUtil.standardDrive(this, Controls.drive, reverseControl);
+                if (Controls.DriveTrain.TOGGLE_REVERSE()) {
+                    this.toggleReversed();
+                }
             }
         }
 
@@ -167,5 +172,13 @@ public class DriveTrain extends StandardDriveTrain {
         sets.putAll(super.NTSets());
         sets.putAll(Map.of("pixyReading", pixy::read));
         return sets;
+    }
+
+    public void setReversed(boolean reverse) {
+        this.reverseControl = reverse;
+    }
+
+    public void toggleReversed() {
+        this.reverseControl = !this.reverseControl;
     }
 }
