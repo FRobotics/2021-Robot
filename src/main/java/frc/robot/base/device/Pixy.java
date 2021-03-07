@@ -35,7 +35,7 @@ public class Pixy {
             return 0.0;
         }
         targetFound = true;
-        targetX = 200*voltage/3.3; // convert voltage to screen pixels, 200 pixels on screen / 3.3volts = 200/3.3 pixels per volt
+        targetX = 200*voltage/3.3 - 100; // convert voltage to screen pixels, 200 pixels on screen / 3.3volts = 200/3.3 pixels per volt
         return targetX;
     }
 }
