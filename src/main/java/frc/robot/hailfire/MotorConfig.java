@@ -22,22 +22,11 @@ public class MotorConfig {
                 0.00638,
                 150
         );
-
-        /*
-         * LOW MULT: 2.2053804347826086956521739130435
-         * HIGH MULT: 0.63836956521739130434782608695652
-         * OLD CONFIG
-         * 0.92,
-         * 0.8,
-         * 0.0012,
-         * 0.01,
-         * 150
-         */
     }
 
     public static class Shooter {
         public static EncoderMotorConfig CONFIG = new EncoderMotorConfig(
-                2048 * 4,
+                2048 * 4, // counts per rev
                 .0154, // f
                 .0060, // p
                 .0001, // i
