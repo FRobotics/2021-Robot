@@ -72,7 +72,6 @@ public class DriveTrain extends StandardDriveTrain {
     }
     
     private PosControl posControl;
-    private double startAngle = 0;
     private double angleX = 0;
 
     @Override
@@ -91,15 +90,14 @@ public class DriveTrain extends StandardDriveTrain {
         } else {
             if (Controls.DriveTrain.AUTO_AIM()) {
                 // TODO: these are complete guesses
-                posControl = new PosControl(angleX, 0.1, 0.2, 0.5, 5);
+                posControl = new PosControl(0, 0.1, 0.2, 0.5, 5);
                 this.autoAim = true;
-                startAngle = gyro.getAngle();
             }
             if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
-                double calculatedSpeed = posControl.getSpeed(this.gyro.getAngle() - startAngle);
-                this.setLeftVelOrPercent(-calculatedSpeed);
-                this.setRightVelOrPercent(calculatedSpeed);
+                double calculatedSpeed = posControl.getSpeed(angleX);
+                this.setLeftVelOrPercent(calculatedSpeed);
+                this.setRightVelOrPercent(-calculatedSpeed);
             } else {
                 DriveUtil.standardDrive(this, Controls.drive, reverseControl);
                 if (Controls.DriveTrain.TOGGLE_REVERSE()) {
