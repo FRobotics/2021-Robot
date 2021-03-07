@@ -29,10 +29,22 @@ public class NTHandler {
 
     private static void addSubsystem(Subsystem subsystem) {
         subsystem.NTSets().forEach(
-            (name, valueSupplier) -> setMap.put(robotTable.getEntry(name.startsWith("/") ? name : (subsystem.name + "/" + name)), valueSupplier)
+            (name, valueSupplier) -> {
+                if (name.startsWith("/")) {
+                    setMap.put(NetworkTableInstance.getDefault().getEntry(name), valueSupplier);
+                } else {
+                    setMap.put(robotTable.getEntry(subsystem.name + "/" + name), valueSupplier);
+                }
+            }
         );
         subsystem.NTGets().forEach(
-            (name, valueConsumer) -> getMap.put(robotTable.getEntry(name.startsWith("/") ? name : (subsystem.name + "/" + name)), valueConsumer)
+            (name, valueConsumer) -> {
+                if (name.startsWith("/")) {
+                    getMap.put(NetworkTableInstance.getDefault().getEntry(name), valueConsumer);
+                } else {
+                    getMap.put(robotTable.getEntry(subsystem.name + "/" + name), valueConsumer);
+                }
+            }
         );
     }
 

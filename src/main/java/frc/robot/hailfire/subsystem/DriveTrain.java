@@ -90,12 +90,13 @@ public class DriveTrain extends StandardDriveTrain {
         } else {
             if (Controls.DriveTrain.AUTO_AIM()) {
                 // TODO: these are complete guesses
-                posControl = new PosControl(0, 0.1, 0.2, 0.5, 5);
+                posControl = new PosControl(0, 0.1, 0.2, 0.5, 2);
                 this.autoAim = true;
             }
             if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
                 double calculatedSpeed = posControl.getSpeed(angleX);
+                System.out.println("angle: " + angleX + " / calcspeed: " + calculatedSpeed);
                 this.setLeftVelOrPercent(calculatedSpeed);
                 this.setRightVelOrPercent(-calculatedSpeed);
             } else {
@@ -170,7 +171,7 @@ public class DriveTrain extends StandardDriveTrain {
 
     @Override
     public Map<String, Consumer<Object>> NTGets() {
-        return Map.ofEntries(Util.<Double>setter("/vision/data/angleX", 
+        return Map.ofEntries(Util.<Double>setter("/vision/data/OffsetX", 
             a -> this.angleX = a
         ));
     }
