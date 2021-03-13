@@ -180,7 +180,10 @@ public class DriveTrain extends StandardDriveTrain {
     public Map<String, Supplier<Object>> NTSets() {
         Map<String, Supplier<Object>> sets = new HashMap<>();
         sets.putAll(super.NTSets());
-        sets.putAll(Map.of("pixyReading", pixy::read));
+        sets.putAll(Map.of(
+            "pixyReading", pixy::read,
+            "gyroAngle", gyro::getAngle
+        ));
         return sets;
     }
 

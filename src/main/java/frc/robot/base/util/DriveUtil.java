@@ -75,7 +75,7 @@ public class DriveUtil {
         var currentState = trajectory.sample((System.currentTimeMillis() - pathStartTime)/1000.d);
         
         Pose2d trajCurrentPosition = trajOdom.update(
-            Rotation2d.fromDegrees(-angle).minus( trajInitialGyro ),
+            Rotation2d.fromDegrees(angle).minus(trajInitialGyro),
             Units.feetToMeters(left - trajInitialLeft),
             Units.feetToMeters(right - trajInitialRight)
         );
@@ -101,15 +101,19 @@ public class DriveUtil {
     }
     
     public static boolean finishedPath() {
-        boolean trajOnTime = System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() * 1000;
-        boolean trajOutTime = System.currentTimeMillis() - pathStartTime >= (trajectory.getTotalTimeSeconds() + 4.d) * 1000;
+
+        double currentTime = System.currentTimeMillis() - pathStartTime;
+        boolean trajOnTime = currentTime >= trajectory.getTotalTimeSeconds() * 1000;
+        boolean trajOutTime = currentTime >= (trajectory.getTotalTimeSeconds() + 4.d) * 1000;
+        NTHandler.getRobotEntry("trajTotalTime").setDouble(trajectory.getTotalTimeSeconds());
+        NTHandler.getRobotEntry("trajCurrentTime").setDouble(currentTime / 1000);
 
         return (trajOnTime && trajOnTarget) || trajOutTime;
     }
     
     private static final double trackWidth = 24.d;
     public static void startTrajectory(Trajectory t, double gyroAngle, double left, double right) {
-        Rotation2d angle = new Rotation2d(Units.degreesToRadians(gyroAngle));
+        Rotation2d angle = Rotation2d.fromDegrees(gyroAngle);
         trajOdom = new DifferentialDriveOdometry(angle);
         trajKine = new DifferentialDriveKinematics(Units.feetToMeters(trackWidth));
         trajRamsete = new RamseteController();

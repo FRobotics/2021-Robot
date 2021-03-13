@@ -98,7 +98,7 @@ public class Hailfire extends Robot {
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
                 () -> DriveUtil.startTrajectory(
-                    driveTrain.TURN_RIGHT,
+                    driveTrain.STRAIGHT,
                     driveTrain.gyro.getAngle(),
                     driveTrain.getLeftDistance(),
                     driveTrain.getRightDistance()
@@ -107,7 +107,7 @@ public class Hailfire extends Robot {
         ), driveTrain::isFinished),
         new SetupAction(() -> driveTrain.startAction(
             new Action(
-                () -> {DriveUtil.followPath(driveTrain, driveTrain.gyro.getAngle(), 2);},
+                () -> {DriveUtil.followPath(driveTrain, driveTrain.gyro.getAngle(), driveTrain.getCurrentMaxSpeed());},
                 DriveUtil::finishedPath
             )
         ), driveTrain::isFinished)
