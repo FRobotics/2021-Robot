@@ -171,6 +171,14 @@ public class StandardDriveTrain extends Subsystem {
     public double getAverageVelocity() {
         return (this.leftMotor.getVelocity() + this.rightMotor.getVelocity()) / 2;
     }
+    
+    public double getLeftDistance() {
+        return leftMotor.getDistance();
+    }
+    
+    public double getRightDistance() {
+        return rightMotor.getDistance();
+    }
 
     public double getAverageDistance() {
         return (leftMotor.getDistance() + rightMotor.getDistance()) / 2;

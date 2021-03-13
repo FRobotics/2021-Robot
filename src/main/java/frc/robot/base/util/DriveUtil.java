@@ -3,12 +3,10 @@ package frc.robot.base.util;
 import frc.robot.base.input.Axis;
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Transform2d;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -71,11 +69,13 @@ public class DriveUtil {
     private static boolean trajOnTarget = false;
     
     
-    public static void followPath(StandardDriveTrain driveTrain, Pose2d currentPosition, Gyro gyro, double left, double right, double max) {
+    public static void followPath(StandardDriveTrain driveTrain, double angle, double max) {
+        double left = driveTrain.getLeftDistance();
+        double right = driveTrain.getRightDistance();
         var currentState = trajectory.sample((System.currentTimeMillis() - pathStartTime)/1000.d);
         
         Pose2d trajCurrentPosition = trajOdom.update(
-            Rotation2d.fromDegrees( -gyro.getAngle()).minus( trajInitialGyro ),
+            Rotation2d.fromDegrees(-angle).minus( trajInitialGyro ),
             Units.feetToMeters(left - trajInitialLeft),
             Units.feetToMeters(right - trajInitialRight)
         );
@@ -97,7 +97,7 @@ public class DriveUtil {
 
         NTHandler.getRobotEntry("trajXErrorFt").setDouble(trajXErrorFt);
         NTHandler.getRobotEntry("trajYErrorFt").setDouble(trajYErrorFt);
-        NTHandler.getRobotEntry("trajGyroErrorDeg").setDouble(trajGyroErrorDeg)
+        NTHandler.getRobotEntry("trajGyroErrorDeg").setDouble(trajGyroErrorDeg);
     }
     
     public static boolean finishedPath() {
@@ -108,12 +108,13 @@ public class DriveUtil {
     }
     
     private static final double trackWidth = 24.d;
-    public static void startTrajectory(Trajectory t, Rotation2d gyroAngle, double left, double right) {
-        trajOdom = new DifferentialDriveOdometry(gyroAngle);
+    public static void startTrajectory(Trajectory t, double gyroAngle, double left, double right) {
+        Rotation2d angle = new Rotation2d(Units.degreesToRadians(gyroAngle));
+        trajOdom = new DifferentialDriveOdometry(angle);
         trajKine = new DifferentialDriveKinematics(Units.feetToMeters(trackWidth));
         trajRamsete = new RamseteController();
 
-        trajInitialGyro = gyroAngle;
+        trajInitialGyro = angle;
         trajInitialLeft = left;
         trajInitialRight = right;
 

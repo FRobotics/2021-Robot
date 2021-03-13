@@ -97,12 +97,17 @@ public class Hailfire extends Robot {
     private final List<? extends Action> auto2 = List.of(
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
-                () -> DriveUtil.startTrajectory(driveTrain.TURN_RIGHT)
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.TURN_RIGHT,
+                    driveTrain.gyro.getAngle(),
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance()
+                )
             )
         ), driveTrain::isFinished),
         new SetupAction(() -> driveTrain.startAction(
             new Action(
-                () -> {DriveUtil.followPath(driveTrain);},
+                () -> {DriveUtil.followPath(driveTrain, driveTrain.gyro.getAngle(), 2);},
                 DriveUtil::finishedPath
             )
         ), driveTrain::isFinished)
