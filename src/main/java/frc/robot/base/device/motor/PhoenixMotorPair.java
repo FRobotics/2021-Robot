@@ -1,5 +1,6 @@
 package frc.robot.base.device.motor;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
 
 /**
@@ -69,5 +70,17 @@ public class PhoenixMotorPair implements EncoderMotor {
     @Override
     public void setConfig(EncoderMotorConfig config) {
         parent.setConfig(config);
+    }
+
+    public void setNeutralMode(NeutralMode mode) {
+        parent.setNeutralMode(mode);
+        child.setNeutralMode(mode);
+    }
+    
+    public void setRampTime(double time) {
+        parent.setRampTime(time);
+        parent.setRampTime(time);
+        child.setRampTime(time);
+        child.setRampTime(time);
     }
 }

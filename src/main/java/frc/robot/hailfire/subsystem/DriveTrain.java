@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -43,6 +44,17 @@ public class DriveTrain extends StandardDriveTrain {
     public final Trajectory TURN_LEFT = Util.loadTrajectory("/home/lvuser/Trajectory/test02_turnLeft.json");
     public final Trajectory TURN_RIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test03_turnRight.json");
     public final Trajectory BACK_TO_START = Util.loadTrajectory("/home/lvuser/Trajectory/test04_BackToStart.json");
+    
+    public static PhoenixMotorPair createMotor(int master, int follower) {
+        var motor = new PhoenixMotorPair(
+            new TalonSRX(master),
+            new VictorSPX(follower),
+            MotorConfig.DriveTrain.LOW_CONFIG
+        );
+        motor.setNeutralMode(NeutralMode.Brake);
+        motor.setRampTime(0.5);
+        return motor;
+    }
 
     public DriveTrain() {
         super(
@@ -57,11 +69,9 @@ public class DriveTrain extends StandardDriveTrain {
                         MotorConfig.DriveTrain.LOW_CONFIG
                 ).invert(),
                 10, 19, LOW_MAX_SPEED);
-        setMaxScaleShift(-1.35); // this makes setVelOrPercent scale better for velocity control
     }
     
     private PosControl posControl;
-    private double startAngle = 0;
     private double angleX = 0;
 
     @Override
@@ -80,15 +90,15 @@ public class DriveTrain extends StandardDriveTrain {
         } else {
             if (Controls.DriveTrain.AUTO_AIM()) {
                 // TODO: these are complete guesses
-                posControl = new PosControl(angleX, 0.1, 0.2, 0.5, 5);
+                posControl = new PosControl(0, 0.1, 0.2, 0.5, 2);
                 this.autoAim = true;
-                startAngle = gyro.getAngle();
             }
             if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
-                double calculatedSpeed = posControl.getSpeed(this.gyro.getAngle() - startAngle);
-                this.setLeftVelOrPercent(-calculatedSpeed);
-                this.setRightVelOrPercent(calculatedSpeed);
+                double calculatedSpeed = posControl.getSpeed(angleX);
+                System.out.println("angle: " + angleX + " / calcspeed: " + calculatedSpeed);
+                this.setLeftVelOrPercent(calculatedSpeed);
+                this.setRightVelOrPercent(-calculatedSpeed);
             } else {
                 DriveUtil.standardDrive(this, Controls.drive, reverseControl);
                 if (Controls.DriveTrain.TOGGLE_REVERSE()) {
@@ -161,7 +171,7 @@ public class DriveTrain extends StandardDriveTrain {
 
     @Override
     public Map<String, Consumer<Object>> NTGets() {
-        return Map.ofEntries(Util.<Double>setter("/vision/data/angleX", 
+        return Map.ofEntries(Util.<Double>setter("/vision/data/OffsetX", 
             a -> this.angleX = a
         ));
     }

@@ -72,15 +72,9 @@ public class StandardDriveTrain extends Subsystem {
         this.setRightPercentOutput(percent);
     }
 
-    private double maxScalingShift = 0;
-
-    public void setMaxScaleShift(double shift) {
-        this.maxScalingShift = shift;
-    }
-
     public void setLeftVelOrPercent(double percent) {
         if(useClosedLoop) {
-            this.setLeftVelocity(percent * (getCurrentMaxSpeed() + maxScalingShift));
+            this.setLeftVelocity(percent * getCurrentMaxSpeed());
         } else {
             this.setLeftPercentOutput(percent);
         }
@@ -88,7 +82,7 @@ public class StandardDriveTrain extends Subsystem {
 
     public void setRightVelOrPercent(double percent) {
         if(useClosedLoop) {
-            this.setRightVelocity(percent * (getCurrentMaxSpeed() + maxScalingShift));
+            this.setRightVelocity(percent * getCurrentMaxSpeed());
         } else {
             this.setRightPercentOutput(percent);
         }
@@ -96,7 +90,7 @@ public class StandardDriveTrain extends Subsystem {
 
     public void setVelOrPercent(double percent) {
         if(useClosedLoop) {
-            this.setVelocity(percent * (getCurrentMaxSpeed() + maxScalingShift));
+            this.setVelocity(percent * getCurrentMaxSpeed());
         } else {
             this.setPercentOutput(percent);
         }
