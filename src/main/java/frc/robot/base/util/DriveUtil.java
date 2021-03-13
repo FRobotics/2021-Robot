@@ -98,9 +98,6 @@ public class DriveUtil {
         NTHandler.getRobotEntry("trajXErrorFt").setDouble(trajXErrorFt);
         NTHandler.getRobotEntry("trajYErrorFt").setDouble(trajYErrorFt);
         NTHandler.getRobotEntry("trajGyroErrorDeg").setDouble(trajGyroErrorDeg)
-        
-        
-        uble(trajGyroErrorDeg);
     }
     
     public static boolean finishedPath() {
