@@ -62,12 +62,12 @@ public class DriveTrain extends StandardDriveTrain {
                         new TalonSRX(IDs.DriveTrain.LEFT_MOTOR_MASTER),
                         new VictorSPX(IDs.DriveTrain.LEFT_MOTOR_FOLLOWER),
                         MotorConfig.DriveTrain.LOW_CONFIG
-                ),
+                ).invert(),
                 new PhoenixMotorPair(
                         new TalonSRX(IDs.DriveTrain.RIGHT_MOTOR_MASTER),
                         new VictorSPX(IDs.DriveTrain.RIGHT_MOTOR_FOLLOWER),
                         MotorConfig.DriveTrain.LOW_CONFIG
-                ).invert(),
+                ),
                 10, 19, LOW_MAX_SPEED);
     }
     

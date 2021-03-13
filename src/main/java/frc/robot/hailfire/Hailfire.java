@@ -50,7 +50,7 @@ public class Hailfire extends Robot {
     }
 
     private final String[] autoList = new String[]{
-        "None", "Auto 1", "Trajectory Test"
+        "None", "Auto 1", "Trajectory Test", "Right Motor Test"
     };
 
     @Override
@@ -66,6 +66,9 @@ public class Hailfire extends Robot {
                 break;
             case "Trajectory Test":
                 setAutoActions(auto2);
+                break;
+            case "Right Motor Test":
+                setAutoActions(auto3);
                 break;
         }
     }
@@ -98,7 +101,7 @@ public class Hailfire extends Robot {
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
                 () -> DriveUtil.startTrajectory(
-                    driveTrain.STRAIGHT,
+                    driveTrain.TURN_LEFT,
                     driveTrain.gyro.getAngle(),
                     driveTrain.getLeftDistance(),
                     driveTrain.getRightDistance()
@@ -111,5 +114,14 @@ public class Hailfire extends Robot {
                 DriveUtil::finishedPath
             )
         ), driveTrain::isFinished)
+    );
+    
+    private final List<? extends Action> auto3 = List.of(
+        new TimedAction(() -> driveTrain.startAction(
+            new Action(() -> {
+                driveTrain.setLeftVelocity(0);
+                driveTrain.setRightVelocity(1);
+            })
+        ), 3000)
     );
 }

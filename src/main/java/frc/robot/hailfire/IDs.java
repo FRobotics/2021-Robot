@@ -3,10 +3,10 @@ package frc.robot.hailfire;
 public class IDs {
 
     public static class DriveTrain {
-        public static final int LEFT_MOTOR_MASTER = 10;
-        public static final int LEFT_MOTOR_FOLLOWER = 11;
-        public static final int RIGHT_MOTOR_MASTER = 16;
-        public static final int RIGHT_MOTOR_FOLLOWER = 17;
+        public static final int LEFT_MOTOR_MASTER = 16;
+        public static final int LEFT_MOTOR_FOLLOWER = 17;
+        public static final int RIGHT_MOTOR_MASTER = 10;
+        public static final int RIGHT_MOTOR_FOLLOWER = 11;
 
         // public static final int RIGHT_EVO_SHIFTER_FORWARD = 2;
         // public static final int RIGHT_EVO_SHIFTER_REVERSE = 3;
