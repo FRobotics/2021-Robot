@@ -25,10 +25,10 @@ public class DriveUtil {
     private static int controllerPower = 2;
 
     public static void standardDrive(StandardDriveTrain driveTrain, Controller controller, boolean reverse) {
-        int r = reverse ? -1 : 1;
+        double r = reverse ? -1 : 1;
         double fb = -r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD),
                 controllerDeadBand, controllerPower);
-        double lr = -r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand,
+        double lr = -Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand,
                 controllerPower);
 
         double left = fb - lr;
