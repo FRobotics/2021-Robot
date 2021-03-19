@@ -72,7 +72,7 @@ public class DriveTrain extends StandardDriveTrain {
     }
     
     private PosControl posControl;
-    private double angleX = 0;
+    private double angleX = -9999;
 
     @Override
     public void control() {
@@ -90,15 +90,15 @@ public class DriveTrain extends StandardDriveTrain {
         } else {
             if (Controls.DriveTrain.AUTO_AIM()) {
                 // TODO: these are complete guesses
-                posControl = new PosControl(0, 0.1, 0.2, 0.5, 2);
+                posControl = new PosControl(0, 0.005, 6, 0.02, 0.1);
                 this.autoAim = true;
             }
             if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
                 double calculatedSpeed = posControl.getSpeed(angleX);
                 System.out.println("angle: " + angleX + " / calcspeed: " + calculatedSpeed);
-                this.setLeftVelOrPercent(calculatedSpeed);
-                this.setRightVelOrPercent(-calculatedSpeed);
+                this.setLeftVelOrPercent(-calculatedSpeed);
+                this.setRightVelOrPercent(calculatedSpeed);
             } else {
                 DriveUtil.standardDrive(this, Controls.drive, reverseControl);
                 if (Controls.DriveTrain.TOGGLE_REVERSE()) {
@@ -154,6 +154,11 @@ public class DriveTrain extends StandardDriveTrain {
         }
     }
 
+    //darius and jas added
+    public double getVisionOffsetX() {
+        return angleX;
+    }
+
     PosControl aimPosControl = new PosControl(0, 1, 0.5, 0.2, 0.5);;
 
     public void autoAim() {
@@ -182,6 +187,7 @@ public class DriveTrain extends StandardDriveTrain {
         sets.putAll(super.NTSets());
         sets.putAll(Map.of(
             "pixyReading", pixy::read,
+            "vision/AngleX_fromRobot", this::getVisionOffsetX,
             "gyroAngle", gyro::getAngle
         ));
         return sets;
