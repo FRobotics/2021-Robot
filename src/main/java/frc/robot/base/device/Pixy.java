@@ -1,5 +1,7 @@
 package frc.robot.base.device;
+
 import edu.wpi.first.wpilibj.AnalogInput;
+import frc.robot.base.NTHandler;
 
 // this was written by Darius
 public class Pixy {
@@ -32,10 +34,12 @@ public class Pixy {
         double voltage = positionInput.getAverageVoltage();
         if (voltage < pixyVoltageThreshold) {
             targetFound = false;
-            return 0.0;
+            NTHandler.getRobotEntry("pixyCam").setDouble(-1000.0);
+            return -1000.0d;
         }
         targetFound = true;
         targetX = 200*voltage/3.3 - 100; // convert voltage to screen pixels, 200 pixels on screen / 3.3volts = 200/3.3 pixels per volt
+        NTHandler.getRobotEntry("pixyCam").setDouble(targetX);
         return targetX;
     }
 }

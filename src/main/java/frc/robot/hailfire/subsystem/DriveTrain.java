@@ -18,6 +18,7 @@ import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.device.motor.PhoenixMotorPair;
+import frc.robot.base.NTHandler;
 import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.Pixy;
 import frc.robot.hailfire.MotorConfig;
@@ -44,6 +45,12 @@ public class DriveTrain extends StandardDriveTrain {
     public final Trajectory TURN_LEFT = Util.loadTrajectory("/home/lvuser/Trajectory/test02_turnLeft.json");
     public final Trajectory TURN_RIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test03_turnRight.json");
     public final Trajectory BACK_TO_START = Util.loadTrajectory("/home/lvuser/Trajectory/test04_BackToStart.json");
+    public final Trajectory BOUNCE1 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath1.json");
+    public final Trajectory BOUNCE2 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath2.json");
+    public final Trajectory BOUNCE3 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath3.json");
+    public final Trajectory BOUNCE4 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath3.json");
+    public final Trajectory SLALOM = Util.loadTrajectory("/home/lvuser/Trajectory/SlalomTraject2.json");
+    public final Trajectory BARREL = Util.loadTrajectory("/home/lvuser/Trajectory/BarrelTraj.json");
     
     public static PhoenixMotorPair createMotor(int master, int follower) {
         var motor = new PhoenixMotorPair(
@@ -76,7 +83,6 @@ public class DriveTrain extends StandardDriveTrain {
 
     @Override
     public void control() {
-
         double turnSpeed = 0.2;
 
         if (Controls.DriveTrain.TURN_RIGHT()){
@@ -96,7 +102,6 @@ public class DriveTrain extends StandardDriveTrain {
             if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
                 double calculatedSpeed = posControl.getSpeed(angleX);
-                System.out.println("angle: " + angleX + " / calcspeed: " + calculatedSpeed);
                 this.setLeftVelOrPercent(-calculatedSpeed);
                 this.setRightVelOrPercent(calculatedSpeed);
             } else {
@@ -139,7 +144,9 @@ public class DriveTrain extends StandardDriveTrain {
             }
         }
     }
-
+    public double ReadPixy() {
+        return pixy.read();
+    }
     public void shiftToHighGear() {
         if(evoShifter.extend()) {
             setMotorConfigs(MotorConfig.DriveTrain.HIGH_CONFIG);
@@ -159,19 +166,32 @@ public class DriveTrain extends StandardDriveTrain {
         return angleX;
     }
 
-    PosControl aimPosControl = new PosControl(0, 1, 0.5, 0.2, 0.5);;
+    PosControl anglePosControl = new PosControl(0, 0.01, 0.4, 0.075, 0.3);
 
-    public void autoAim() {
+    public void turnToAngle(double angle) {
         /* 
          * TODO: either use this code or discard it;
          * this constantly updates the target and uses a watchdog for safety in the vision class
          * I don't think we'll need this though + we'd have to change vision to work this way again
          */
-        if(!Vision.isStale()) {
-            double calculatedSpeed = aimPosControl.getSpeed(Vision.getYawOffset());
-            this.setLeftVelOrPercent(-calculatedSpeed);
-            this.setRightVelOrPercent(calculatedSpeed);
-        }
+        
+        double calculatedSpeed = anglePosControl.getSpeed(gyro.getAngle() - angle);
+        this.setLeftVelOrPercent(calculatedSpeed);
+        this.setRightVelOrPercent(-calculatedSpeed);
+    }
+
+    PosControl autoDrivePositionControl = new PosControl(0, 3, 0.05, 0.05, 0.4);
+
+    public void autoDriveForward(double offset) {
+        /* 
+         * TODO: either use this code or discard it;
+         * this constantly updates the target and uses a watchdog for safety in the vision class
+         * I don't think we'll need this though + we'd have to change vision to work this way again
+         */
+        
+        double calculatedSpeed = autoDrivePositionControl.getSpeed(offset);
+        this.setLeftVelOrPercent(-calculatedSpeed);
+        this.setRightVelOrPercent(-calculatedSpeed); 
     }
 
     @Override

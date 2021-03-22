@@ -3,10 +3,12 @@ package frc.robot.base.util;
 import frc.robot.base.input.Axis;
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
+import frc.robot.hailfire.subsystem.DriveTrain;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Transform2d;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -17,24 +19,21 @@ import frc.robot.base.Controls;
 import frc.robot.base.NTHandler;
 
 public class DriveUtil {
-
-    // this stuff shouldn't be static but I don't think it'll ever matter and it's
-    // easiest for now
+    
+    // this stuff shouldn't be static but I don't think it'll ever matter and it's easiest for now
 
     private static double controllerDeadBand = 0.2;
     private static int controllerPower = 2;
 
     public static void standardDrive(StandardDriveTrain driveTrain, Controller controller, boolean reverse) {
-        double r = reverse ? -1 : 1;
-        double fb = -r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD),
-                controllerDeadBand, controllerPower);
-        double lr = -Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand,
-                controllerPower);
+        int r = reverse ? -1 : 1;
+        double fb = - r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD), controllerDeadBand, controllerPower);
+        double lr = r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand, controllerPower);
 
         double left = fb - lr;
         double right = fb + lr;
-
-        if (driveTrain.isClosedLoop()) {
+        
+        if (driveTrain.isClosedLoop()){
             driveTrain.setLeftVelocity(left * driveTrain.getAbsoluteMaxSpeed());
             driveTrain.setRightVelocity(right * driveTrain.getAbsoluteMaxSpeed());
         } else {
@@ -50,7 +49,7 @@ public class DriveUtil {
             driveTrain.setClosedLoop(false);
         }
 
-        if (controller.getAxis(Axis.LEFT_TRIGGER) > 0.5) {
+        if(controller.getAxis(Axis.LEFT_TRIGGER) > 0.5) {
             driveTrain.resetDistance();
         }
     }
@@ -61,7 +60,8 @@ public class DriveUtil {
     private static DifferentialDriveKinematics trajKine;
     private static RamseteController trajRamsete;
 
-    private static double trajInitialGyro;
+    private static DriveTrain driveTrain;
+
     private static double trajInitialLeft = 0.d;
     private static double trajInitialRight = 0.d;
 
@@ -70,25 +70,31 @@ public class DriveUtil {
     private static double trajXErrorFt, trajYErrorFt, trajGyroErrorDeg = 0.d;
 
     private static boolean trajOnTarget = false;
+    
+    
+    public static void followPath() {
 
-    public static void followPath(StandardDriveTrain driveTrain, double angle, double max) {
+        double angle = driveTrain.gyro.getAngle();
+        double max = driveTrain.getCurrentMaxSpeed();
         double left = driveTrain.getLeftDistance();
         double right = driveTrain.getRightDistance();
-        Trajectory.State currentState = trajectory.sample((System.currentTimeMillis() - pathStartTime) / 1000.d);
-
-        Pose2d trajCurrentPosition = trajOdom.update(Rotation2d.fromDegrees(angle - trajInitialGyro),
-                Units.feetToMeters(left - trajInitialLeft), Units.feetToMeters(right - trajInitialRight));
-
-        //trajRamsete.setEnabled(false);
-        ChassisSpeeds trajChassisDmd = trajRamsete.calculate(trajCurrentPosition, currentState);
+        Trajectory.State desiredState = trajectory.sample(((double)(System.currentTimeMillis() - pathStartTime))*0.001d);
+        
+        Pose2d trajCurrentPosition = trajOdom.update(
+            Rotation2d.fromDegrees(-angle),
+            Units.feetToMeters(left - trajInitialLeft),
+            Units.feetToMeters(right - trajInitialRight)
+        );
+        
+        ChassisSpeeds trajChassisDmd = trajRamsete.calculate(trajCurrentPosition, desiredState);
         DifferentialDriveWheelSpeeds trajWheelDmds = trajKine.toWheelSpeeds(trajChassisDmd);
-
+        
         trajWheelDmds.normalize(Units.feetToMeters(max));
 
         driveTrain.setLeftVelocity(Units.metersToFeet(trajWheelDmds.leftMetersPerSecond));
         driveTrain.setRightVelocity(Units.metersToFeet(trajWheelDmds.rightMetersPerSecond));
-
-        Transform2d trajErrorPose = trajCurrentPosition.minus(currentState.poseMeters);
+        
+        Transform2d trajErrorPose = trajCurrentPosition.minus(desiredState.poseMeters);
         trajXErrorFt = Units.metersToFeet(trajErrorPose.getX());
         trajYErrorFt = Units.metersToFeet(trajErrorPose.getY());
         trajGyroErrorDeg = trajErrorPose.getRotation().getDegrees();
@@ -98,33 +104,28 @@ public class DriveUtil {
         NTHandler.getRobotEntry("trajXErrorFt").setDouble(trajXErrorFt);
         NTHandler.getRobotEntry("trajYErrorFt").setDouble(trajYErrorFt);
         NTHandler.getRobotEntry("trajGyroErrorDeg").setDouble(trajGyroErrorDeg);
-
-        NTHandler.getRobotEntry("posX").setDouble(trajCurrentPosition.getX());
-        NTHandler.getRobotEntry("posY").setDouble(trajCurrentPosition.getY());
-        NTHandler.getRobotEntry("currentTrajX").setDouble(currentState.poseMeters.getX());
-        NTHandler.getRobotEntry("currentTrajY").setDouble(currentState.poseMeters.getY());
-        //NTHandler.getRobotEntry("header").setDouble(currentState.poseMeters.getRotation().getDegrees());
+        NTHandler.getRobotEntry("pathtime").setDouble(System.currentTimeMillis() - pathStartTime);
+        NTHandler.getRobotEntry("onTarget").setBoolean(trajOnTarget);
     }
-
+    
     public static boolean finishedPath() {
-
-        double currentTime = System.currentTimeMillis() - pathStartTime;
-        boolean trajOnTime = currentTime >= trajectory.getTotalTimeSeconds() * 1000;
-        boolean trajOutTime = currentTime >= (trajectory.getTotalTimeSeconds() + 10.d) * 1000;
-        NTHandler.getRobotEntry("trajTotalTime").setDouble(trajectory.getTotalTimeSeconds());
-        NTHandler.getRobotEntry("trajCurrentTime").setDouble(currentTime / 1000);
+        boolean trajOnTime = System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() * 1000;
+        boolean trajOutTime = System.currentTimeMillis() - pathStartTime >= (trajectory.getTotalTimeSeconds() + 4.d) * 1000;
 
         return (trajOnTime && trajOnTarget) || trajOutTime;
     }
-
+    
     private static final double trackWidth = 24.d;
-
-    public static void startTrajectory(Trajectory t, double gyroAngle, double left, double right) {
-        trajOdom = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0));
-        trajKine = new DifferentialDriveKinematics(Units.feetToMeters(trackWidth));
+    public static void startTrajectory(Trajectory t, Gyro gyro, double left, double right, DriveTrain dt) {
+        driveTrain = dt;
+        gyro.reset();
+        trajOdom = new DifferentialDriveOdometry(new Rotation2d(gyro.getAngle()));
+        trajKine = new DifferentialDriveKinematics(Units.feetToMeters(trackWidth/12.d));
         trajRamsete = new RamseteController();
 
-        trajInitialGyro = gyroAngle;
+        //trajRamsete.setEnabled(false);
+
+    
         trajInitialLeft = left;
         trajInitialRight = right;
 

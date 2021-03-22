@@ -8,6 +8,8 @@ import frc.robot.base.action.TimedAction;
 import frc.robot.base.input.Pov;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.DriveUtil;
+import frc.robot.base.util.CommandList;
+import frc.robot.base.util.Command;
 import frc.robot.hailfire.subsystem.Climber;
 import frc.robot.hailfire.subsystem.DriveTrain;
 import frc.robot.hailfire.subsystem.Intake;
@@ -21,12 +23,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused")
 public class Hailfire extends Robot {
-    
-    private final DriveTrain driveTrain = register(new DriveTrain());
-    private final Shooter shooter = register(new Shooter());
-    private final Intake intake = register(new Intake());
-    private final Climber climber = register(new Climber());
-    
+    private final CommandList commandList = new CommandList(
+        List.<Command>of(
+            new Command(Command.CommandType.TURN, 90.0, 0.0, 0.0, 0.0),
+            new Command(Command.CommandType.PIXYGOTO, 0.0, 0, 2, 2),
+            new Command(Command.CommandType.DRIVE, 3, 0.2, 0.0, 0.0)
+        )
+    );
+
+    public final DriveTrain driveTrain = register(new DriveTrain());
+    public final Shooter shooter = register(new Shooter());
+    public final Intake intake = register(new Intake());
+    public final Climber climber = register(new Climber());
+
     private PosControl drivePosControl = new PosControl(10, 1, 0.1, 0.5, 5);
     
     public Hailfire() {
@@ -50,7 +59,7 @@ public class Hailfire extends Robot {
     }
 
     private final String[] autoList = new String[]{
-        "None", "Auto 1", "Trajectory Test", "Right Motor Test"
+        "None", "Auto 1", "Trajectory Test", "Right Motor Test", "Command List", "Slalom", "Bounce", "Barrel Race"
     };
 
     @Override
@@ -69,6 +78,18 @@ public class Hailfire extends Robot {
                 break;
             case "Right Motor Test":
                 setAutoActions(auto3);
+                break;
+            case "Command List":
+                setAutoActions(autoCommands);
+                break;
+            case "Slalom":
+                setAutoActions(autoSlalom);
+                break;
+            case "Bounce":
+                setAutoActions(autoBounce);
+                break;
+            case "Barrel Race":
+                setAutoActions(autoBarrel);
                 break;
         }
     }
@@ -101,19 +122,136 @@ public class Hailfire extends Robot {
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
                 () -> DriveUtil.startTrajectory(
-                    driveTrain.TURN_LEFT,
-                    driveTrain.gyro.getAngle(),
+                    driveTrain.SLALOM,
+                    driveTrain.gyro,
                     driveTrain.getLeftDistance(),
-                    driveTrain.getRightDistance()
+                    driveTrain.getRightDistance(),
+                    driveTrain
                 )
             )
         ), driveTrain::isFinished),
         new SetupAction(() -> driveTrain.startAction(
             new Action(
-                () -> {DriveUtil.followPath(driveTrain, driveTrain.gyro.getAngle(), driveTrain.getCurrentMaxSpeed());},
+                () -> {DriveUtil.followPath();},
                 DriveUtil::finishedPath
             )
         ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoSlalom = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.SLALOM,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    //  AUTONOMOUS LIST FOR BOUNCE CHALLENGE
+    private final List<? extends Action> autoBounce = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE1,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE2,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE3,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE4,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoBarrel = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BARREL,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoCommands = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> commandList.Execute(this)
+            )
+        ), commandList::Finished)
     );
     
     private final List<? extends Action> auto3 = List.of(
