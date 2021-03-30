@@ -26,8 +26,8 @@ public class Shooter extends Subsystem {
 
     private Motor pitchMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.PITCH_MOTOR));
     private Encoder pitchEncoder = new Encoder(3, 4);
-    private Motor carousel = new PhoenixMotor(new TalonSRX(IDs.Shooter.CAROUSEL_MOTOR)).invert();
-    private DigitalInput carouselSwitch = new DigitalInput(1);
+    public Motor carousel = new PhoenixMotor(new TalonSRX(IDs.Shooter.CAROUSEL_MOTOR)).invert();
+    public DigitalInput carouselSwitch = new DigitalInput(1);
     private boolean carouselHit = false;
 
     private Relay spike = new Relay(0);
@@ -84,7 +84,7 @@ public class Shooter extends Subsystem {
     public void stop() {
         leftMotor.setPercentOutput(0);
         rightMotor.setPercentOutput(0);
-        carousel.setPercentOutput(0);
+        //carousel.setPercentOutput(0);
         shooterStartTime = System.currentTimeMillis();
         carouselOutput = 0;
         autoCarousel = false;

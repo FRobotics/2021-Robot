@@ -6,10 +6,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.analog.adis16448.frc.ADIS16448_IMU;
+import com.analog.adis16448.frc.ADIS16448_IMU.IMUAxis;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.subsystem.StandardDriveTrain;
 import frc.robot.base.util.DriveUtil;
@@ -27,7 +29,7 @@ import frc.robot.hailfire.Vision;
 public class DriveTrain extends StandardDriveTrain {
 
     private boolean reverseControl = false;
-    public final ADIS16448_IMU gyro = new ADIS16448_IMU();
+    public final ADIS16448_IMU gyro = new ADIS16448_IMU(IMUAxis.kZ, Port.kMXP, 10);
 
     private static final double LOW_MAX_SPEED = 5.5;
 
@@ -48,8 +50,8 @@ public class DriveTrain extends StandardDriveTrain {
     public final Trajectory BOUNCE1 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath1.json");
     public final Trajectory BOUNCE2 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath2.json");
     public final Trajectory BOUNCE3 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath3.json");
-    public final Trajectory BOUNCE4 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath3.json");
-    public final Trajectory SLALOM = Util.loadTrajectory("/home/lvuser/Trajectory/SlalomTraject2.json");
+    public final Trajectory BOUNCE4 = Util.loadTrajectory("/home/lvuser/Trajectory/BouncePath4.json");
+    public final Trajectory SLALOM = Util.loadTrajectory("/home/lvuser/Trajectory/SlalomTraject.json");
     public final Trajectory BARREL = Util.loadTrajectory("/home/lvuser/Trajectory/BarrelTraj.json");
     
     public static PhoenixMotorPair createMotor(int master, int follower) {

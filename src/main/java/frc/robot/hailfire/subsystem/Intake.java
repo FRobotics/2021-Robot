@@ -16,23 +16,27 @@ import java.util.function.Supplier;
 
 public class Intake extends Subsystem {
 
-    private DoubleSolenoid4150 solenoid = new DoubleSolenoid4150(IDs.Intake.ARM_FORWARD, IDs.Intake.ARM_REVERSE);
-    private Motor spinner = new PhoenixMotor(new VictorSPX(IDs.Intake.MOTOR));
+    public DoubleSolenoid4150 solenoid = new DoubleSolenoid4150(IDs.Intake.ARM_FORWARD, IDs.Intake.ARM_REVERSE);
+    public Motor spinner = new PhoenixMotor(new VictorSPX(IDs.Intake.MOTOR));
     
-    private DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
+    public DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
     public Intake() {
         super("intake");
     }
+    @Override
+    public void auto() {
+        System.out.println("Good");
+    }
 
     @Override
     public void stop() {
-        spinner.setPercentOutput(0);
+        //System.out.println("WHY");
+        //spinner.setPercentOutput(0);
     }
     
     @Override
     public void control() {
-
         if (Controls.Intake.ARM_UP()) {
             solenoid.retract();
         }

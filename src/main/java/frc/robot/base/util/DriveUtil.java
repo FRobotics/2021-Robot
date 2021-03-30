@@ -26,9 +26,9 @@ public class DriveUtil {
     private static int controllerPower = 2;
 
     public static void standardDrive(StandardDriveTrain driveTrain, Controller controller, boolean reverse) {
-        int r = reverse ? -1 : 1;
+        double r = reverse ? -1 : 1;
         double fb = - r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD), controllerDeadBand, controllerPower);
-        double lr = r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand, controllerPower);
+        double lr = -0.9d * Util.adjustInput(controller.getAxis(Controls.DriveTrain.TURN_LEFT_RIGHT), controllerDeadBand, controllerPower);
 
         double left = fb - lr;
         double right = fb + lr;
@@ -110,13 +110,14 @@ public class DriveUtil {
     
     public static boolean finishedPath() {
         boolean trajOnTime = System.currentTimeMillis() - pathStartTime >= trajectory.getTotalTimeSeconds() * 1000;
-        boolean trajOutTime = System.currentTimeMillis() - pathStartTime >= (trajectory.getTotalTimeSeconds() + 4.d) * 1000;
+        boolean trajOutTime = System.currentTimeMillis() - pathStartTime >= (trajectory.getTotalTimeSeconds() + 0.1d) * 1000;
 
         return (trajOnTime && trajOnTarget) || trajOutTime;
     }
     
     private static final double trackWidth = 24.d;
     public static void startTrajectory(Trajectory t, Gyro gyro, double left, double right, DriveTrain dt) {
+        System.out.println("THIS IS RUNNING A TRAJECTORY");
         driveTrain = dt;
         gyro.reset();
         trajOdom = new DifferentialDriveOdometry(new Rotation2d(gyro.getAngle()));

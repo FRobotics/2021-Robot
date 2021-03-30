@@ -7,6 +7,7 @@ public class Command {
         SLEEP,
         TURN,
         PIXYGOTO,
+        GOTO,
         BALL_PICKUP
     }
     public CommandType type;

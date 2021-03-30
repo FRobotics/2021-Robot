@@ -25,9 +25,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Hailfire extends Robot {
     private final CommandList commandList = new CommandList(
         List.<Command>of(
-            new Command(Command.CommandType.TURN, 90.0, 0.0, 0.0, 0.0),
-            new Command(Command.CommandType.PIXYGOTO, 0.0, 0, 2, 2),
-            new Command(Command.CommandType.DRIVE, 3, 0.2, 0.0, 0.0)
+            new Command(Command.CommandType.BALL_PICKUP, 0.0, 0.0, 0.0, 0.0),
+            new Command(Command.CommandType.DRIVE, 5, 0.1, 0.0, 0.0)
         )
     );
 
@@ -59,7 +58,7 @@ public class Hailfire extends Robot {
     }
 
     private final String[] autoList = new String[]{
-        "None", "Auto 1", "Trajectory Test", "Right Motor Test", "Command List", "Slalom", "Bounce", "Barrel Race"
+        "None", "Auto 1", "Trajectory Test", "Right Motor Test", "Command List", "Slalom", "BounceTogether", "Bounce1", "Bounce2","Bounce3","Bounce4", "Barrel Race"
     };
 
     @Override
@@ -85,8 +84,20 @@ public class Hailfire extends Robot {
             case "Slalom":
                 setAutoActions(autoSlalom);
                 break;
-            case "Bounce":
-                setAutoActions(autoBounce);
+            case "Bounce1":
+                setAutoActions(autoBounce1);
+                break;
+            case "Bounce2":
+                setAutoActions(autoBounce2);
+                break;
+            case "Bounce3":
+                setAutoActions(autoBounce3);
+                break;
+            case "Bounce4":
+                setAutoActions(autoBounce4);
+                break;
+            case "BounceTogether":
+                setAutoActions(autoBounceTogether);
                 break;
             case "Barrel Race":
                 setAutoActions(autoBarrel);
@@ -156,8 +167,7 @@ public class Hailfire extends Robot {
             )
         ), driveTrain::isFinished)
     );
-    //  AUTONOMOUS LIST FOR BOUNCE CHALLENGE
-    private final List<? extends Action> autoBounce = List.of(
+    private final List<? extends Action> autoBounceTogether = List.of(
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
                 () -> DriveUtil.startTrajectory(
@@ -227,6 +237,83 @@ public class Hailfire extends Robot {
             )
         ), driveTrain::isFinished)
     );
+    //  AUTONOMOUS LIST FOR BOUNCE CHALLENGE
+    private final List<? extends Action> autoBounce1 = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE1,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoBounce2 = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE2,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoBounce3 = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE3,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
+    private final List<? extends Action> autoBounce4 = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> DriveUtil.startTrajectory(
+                    driveTrain.BOUNCE4,
+                    driveTrain.gyro,
+                    driveTrain.getLeftDistance(),
+                    driveTrain.getRightDistance(),
+                    driveTrain
+                )
+            )
+        ), driveTrain::isFinished),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> {DriveUtil.followPath();},
+                DriveUtil::finishedPath
+            )
+        ), driveTrain::isFinished)
+    );
     private final List<? extends Action> autoBarrel = List.of(
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
@@ -249,11 +336,17 @@ public class Hailfire extends Robot {
     private final List<? extends Action> autoCommands = List.of(
         new SetupAction(() -> driveTrain.startAction(
             new SetupAction(
-                () -> commandList.Execute(this)
+                () -> commandList.Init()
+            )
+        )),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> commandList.Execute(this),
+                commandList::Finished
             )
         ), commandList::Finished)
     );
-    
+
     private final List<? extends Action> auto3 = List.of(
         new TimedAction(() -> driveTrain.startAction(
             new Action(() -> {

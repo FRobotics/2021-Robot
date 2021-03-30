@@ -21,6 +21,7 @@ public abstract class Subsystem extends ActionHandler {
 
     private final Action STOP = new Action(this::stop);
     private final Action CONTROL = new Action(this::control);
+    private final Action AUTO = new Action(this::auto);
 
     public final String name;
 
@@ -35,6 +36,7 @@ public abstract class Subsystem extends ActionHandler {
 
     public void stop() {}
     public void control() {}
+    public void auto() {}
 
     /**
      * Use this method to specify what values you want to put on the dashboard;
@@ -61,6 +63,7 @@ public abstract class Subsystem extends ActionHandler {
         this.clearActionQueue();
         switch (mode) {
             case AUTONOMOUS:
+                startActionAndSetDefault(AUTO);
             case DISABLED:
                 startActionAndSetDefault(STOP);
                 break;
