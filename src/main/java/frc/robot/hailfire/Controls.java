@@ -20,20 +20,20 @@ public class Controls {
 
     // NOTE: there are more controls in base/Controls.java
     public static class DriveTrain {
-        public static boolean TURN_RIGHT() { return drive.buttonDown(Button.B); }
-        public static boolean TURN_LEFT() { return drive.buttonDown(Button.X); }
+        public static boolean TURN_RIGHT() { return drive.getPov(Pov.D_PAD) == 90; }
+        public static boolean TURN_LEFT() { return drive.getPov(Pov.D_PAD) == 270; }
         public static boolean LOW_GEAR() { return drive.buttonPressed(Button.RIGHT_BUMPER); }
         public static boolean HIGH_GEAR() { return drive.buttonPressed(Button.LEFT_BUMPER); }
         public static boolean AUTO_SHIFT() { return drive.buttonPressed(Button.START); }
-        public static boolean AUTO_AIM() { return drive.buttonDown(Button.Y); }
+        public static boolean AUTO_AIM() { return drive.buttonDown(Button.B); }
         public static boolean TOGGLE_REVERSE() { return drive.buttonPressed(Button.A); }
     }
 
     public static class Intake {
-        public static boolean ARM_UP() { return aux.getPov(Pov.D_PAD_UP) == 0; }
-        public static boolean ARM_DOWN() { return aux.getPov(Pov.D_PAD_DOWN) == 180; }
-        public static boolean SPIN_FORWARD() { return aux.getPov(Pov.D_PAD_LEFT) == 270; }
-        public static boolean SPIN_BACKWARD() { return aux.getPov(Pov.D_PAD_RIGHT) == 90; }
+        public static boolean ARM_UP() { return aux.getPov(Pov.D_PAD) == 0; }
+        public static boolean ARM_DOWN() { return aux.getPov(Pov.D_PAD) == 180; }
+        public static boolean SPIN_FORWARD() { return aux.getPov(Pov.D_PAD) == 270; }
+        public static boolean SPIN_BACKWARD() { return aux.getPov(Pov.D_PAD) == 90; }
     }
 
     public static class Shooter {

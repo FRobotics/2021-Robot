@@ -20,11 +20,11 @@ import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.device.motor.PhoenixMotorPair;
-import frc.robot.base.NTHandler;
+//import frc.robot.base.NTHandler; // JPS It was never used
 import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.Pixy;
 import frc.robot.hailfire.MotorConfig;
-import frc.robot.hailfire.Vision;
+//import frc.robot.hailfire.Vision; //TODO Find out why this isnt used
 
 public class DriveTrain extends StandardDriveTrain {
 

@@ -1,7 +1,7 @@
 package frc.robot.base.util;
 
 import java.util.List;
-import edu.wpi.first.wpilibj.DigitalInput;
+//import edu.wpi.first.wpilibj.DigitalInput; // JPS it was never used
 
 import frc.robot.hailfire.Hailfire;
 

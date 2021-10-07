@@ -1,8 +1,10 @@
 package frc.robot.hailfire.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
@@ -18,7 +20,8 @@ public class Intake extends Subsystem {
 
     public DoubleSolenoid4150 solenoid = new DoubleSolenoid4150(IDs.Intake.ARM_FORWARD, IDs.Intake.ARM_REVERSE);
     public Motor spinner = new PhoenixMotor(new VictorSPX(IDs.Intake.MOTOR));
-    
+    //private Motor pitchMotor = new PhoenixMotor(new TalonSRX(IDs.Shooter.PITCH_MOTOR));
+    //private Encoder pitchEncoder = new Encoder(3, 4);
     public DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
     public Intake() {
@@ -48,7 +51,11 @@ public class Intake extends Subsystem {
         // spin if solenoid is out
 
         if (Controls.Intake.SPIN_FORWARD() && solenoid.isExtended()) {
+            //if (pitchEncoder.getDistance() > 0) {
+                //pitchMotor.setPercentOutput(.75);
+            //} else {
             spinner.setPercentOutput(1);
+            //}
         } else if(Controls.Intake.SPIN_BACKWARD() && solenoid.isExtended()) {
             spinner.setPercentOutput(-1);
         } else {

@@ -41,7 +41,7 @@ public class Hailfire extends Robot {
         this.setAutoActions(auto1);
         SmartDashboard.getEntry("Auto List").setStringArray(autoList);
         registerController(Controls.drive);
-        registerController(Controls.shooter);
+    //    registerController(Controls.shooter); // JPS, we got rid of the controller
         registerController(Controls.aux);
     }
 

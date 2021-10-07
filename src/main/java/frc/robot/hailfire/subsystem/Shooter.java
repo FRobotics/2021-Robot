@@ -147,7 +147,7 @@ public class Shooter extends Subsystem {
             pitchMotor.setPercentOutput(.125);
         } else if (Controls.Shooter.CAROUSEL_UP()) {
             autoPitch = false;
-            pitchMotor.setPercentOutput(-0.5);
+            pitchMotor.setPercentOutput(-0.75);
         } else {
             if (Controls.Shooter.TEST_PITCH()) {
                 autoPitch = true;
