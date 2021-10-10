@@ -24,7 +24,7 @@ public class Controls {
         public static boolean TURN_LEFT() { return drive.getPov(Pov.D_PAD) == 270; }
         public static boolean LOW_GEAR() { return drive.buttonPressed(Button.RIGHT_BUMPER); }
         public static boolean HIGH_GEAR() { return drive.buttonPressed(Button.LEFT_BUMPER); }
-        public static boolean AUTO_SHIFT() { return drive.buttonPressed(Button.START); }
+        public static boolean AUTO_SHIFT() { return drive.buttonPressed(Button.Y); }
         public static boolean AUTO_AIM() { return drive.buttonDown(Button.B); }
         public static boolean TOGGLE_REVERSE() { return drive.buttonPressed(Button.A); }
     }
