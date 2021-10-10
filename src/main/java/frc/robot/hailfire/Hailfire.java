@@ -49,7 +49,8 @@ public class Hailfire extends Robot {
     public void robotPeriodic() {
         super.robotPeriodic();
 
-        if (Controls.aux.getPov(Pov.D_PAD) >= 0) {
+        if ( Controls.DriveTrain.SWITCH_CAM() ) {
+        // if (Controls.aux.getPov(Pov.D_PAD) >= 0) {   //JAS use generic definition instead
             var cameraNum = NTHandler.getVisionEntry("cameraNumber");
             cameraNum.setValue(cameraNum.getDouble(-1) + 1);
         }

@@ -1,10 +1,10 @@
 package frc.robot.hailfire.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+// import com.ctre.phoenix.motorcontrol.can.TalonSRX;  //JAS not used
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
+//import edu.wpi.first.wpilibj.Encoder;  //JAS not used
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;

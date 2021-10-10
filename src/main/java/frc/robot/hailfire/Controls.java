@@ -19,6 +19,9 @@ public class Controls {
     }
 
     // NOTE: there are more controls in base/Controls.java
+
+    // NOTE: there is a hardcoded value for camera switching in Hailfire.java...
+    // 
     public static class DriveTrain {
         public static boolean TURN_RIGHT() { return drive.getPov(Pov.D_PAD) == 90; }
         public static boolean TURN_LEFT() { return drive.getPov(Pov.D_PAD) == 270; }
@@ -27,6 +30,7 @@ public class Controls {
         public static boolean AUTO_SHIFT() { return drive.buttonPressed(Button.Y); }
         public static boolean AUTO_AIM() { return drive.buttonDown(Button.B); }
         public static boolean TOGGLE_REVERSE() { return drive.buttonPressed(Button.A); }
+        public static boolean SWITCH_CAM() { return drive.buttonPressed(Button.X); }   // JAS added to removed hardcoded.
     }
 
     public static class Intake {

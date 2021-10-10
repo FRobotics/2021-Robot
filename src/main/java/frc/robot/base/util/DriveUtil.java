@@ -1,6 +1,6 @@
 package frc.robot.base.util;
 
-import frc.robot.base.input.Axis;
+// import frc.robot.base.input.Axis;  //JAS not used
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
 import frc.robot.hailfire.subsystem.DriveTrain;
@@ -41,7 +41,7 @@ public class DriveUtil {
             driveTrain.setRightPercentOutput(right);
         }
 
-        if (controller.buttonPressed(Controls.DriveTrain.USE_CLOSED_LOOP)) {
+        if (controller.buttonPressed( Controls.DriveTrain.USE_CLOSED_LOOP)) {
             driveTrain.setClosedLoop(true);
         }
 
@@ -49,7 +49,7 @@ public class DriveUtil {
             driveTrain.setClosedLoop(false);
         }
 
-        if(controller.getAxis(Axis.LEFT_TRIGGER) > 0.5) {
+        if(controller.getAxis(Controls.DriveTrain.RESET_DIST) > 0.5) {
             driveTrain.resetDistance();
         }
     }
