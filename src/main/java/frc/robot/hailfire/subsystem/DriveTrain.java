@@ -85,7 +85,7 @@ public class DriveTrain extends StandardDriveTrain {
 
     @Override
     public void control() {
-        double turnSpeed = 0.2;
+        double turnSpeed = 0.13;
 
         if (Controls.DriveTrain.TURN_RIGHT()){
             setLeftVelOrPercent(-turnSpeed);
@@ -150,14 +150,14 @@ public class DriveTrain extends StandardDriveTrain {
         return pixy.read();
     }
     public void shiftToHighGear() {
-        if(evoShifter.extend()) {
+        if(evoShifter.retract()) {      //JAS reversed per testing (did build switch solenoid...)
             setMotorConfigs(MotorConfig.DriveTrain.HIGH_CONFIG);
             setCurrentMaxSpeed(getAbsoluteMaxSpeed());
         }
     }
 
     public void shiftToLowGear() {
-        if(evoShifter.retract()) {
+        if(evoShifter.extend()) {  //JAS reversed per testing.  (did build switch solenoid)
             setMotorConfigs(MotorConfig.DriveTrain.LOW_CONFIG);
             setCurrentMaxSpeed(LOW_MAX_SPEED);
         }

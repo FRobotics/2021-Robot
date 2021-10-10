@@ -12,10 +12,10 @@ public class Controls {
 
     // NOTE: these aren't really used anymore
     public static class Climber {
-        public static boolean RETRACT() { return aux.buttonDown(Button.LEFT_BUMPER); }
-        public static boolean EXTEND() { return aux.buttonDown(Button.RIGHT_BUMPER); }
-        public static boolean SPIN_WINCH() { return aux.axisDown(Axis.LEFT_TRIGGER); }
-        public static boolean SPIN_WINCH_BACK() { return aux.axisDown(Axis.RIGHT_TRIGGER); }
+        public static boolean HANDS_UP() { return aux.buttonDown(Button.RIGHT_BUMPER); }
+        public static boolean PULL_DOWN() { return aux.buttonDown(Button.LEFT_BUMPER); }
+        public static boolean SPIN_WINCH_BACK() { return aux.axisDown(Axis.LEFT_TRIGGER); }  // relax
+        public static boolean SPIN_WINCH() { return aux.axisDown(Axis.RIGHT_TRIGGER); }  // CLIMB
     }
 
     // NOTE: there are more controls in base/Controls.java

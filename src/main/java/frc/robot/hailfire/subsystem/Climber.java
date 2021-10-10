@@ -23,15 +23,19 @@ public class Climber extends Subsystem {
 
     @Override
     public void control() {
-        if(Controls.Climber.RETRACT()) {
+        if(Controls.Climber.HANDS_UP()) {
             bottomSolenoid.retract();
-        } else if(Controls.Climber.EXTEND()) {
+            
+        } else if(Controls.Climber.PULL_DOWN()) {
             bottomSolenoid.extend();
         }
 
         if(Controls.Climber.SPIN_WINCH()) {
             winch.setPercentOutput(-0.9);
         }
+        else if(Controls.Climber.SPIN_WINCH_BACK()) {
+            winch.setPercentOutput(0.25);
+        }    
         else {
             winch.setPercentOutput(0);
         }
