@@ -41,7 +41,7 @@ public class DriveTrain extends StandardDriveTrain {
     private final Pixy pixy = new Pixy(3);
 
     private boolean autoShift = false;
-    private boolean autoAim = false;
+    //JAS not needed.  private boolean autoAim = false;
     
     public final Trajectory STRAIGHT = Util.loadTrajectory("/home/lvuser/Trajectory/test01_straight.json");
     public final Trajectory TURN_LEFT = Util.loadTrajectory("/home/lvuser/Trajectory/test02_turnLeft.json");
@@ -80,7 +80,9 @@ public class DriveTrain extends StandardDriveTrain {
                 10, 19, LOW_MAX_SPEED);
     }
     
-    private PosControl posControl;
+    // TODO: these are complete guesses
+    // JAS renamed for clarity
+    private PosControl autoAimPosControl = new PosControl(0, 0.005, 6, 0.02, 0.1);  //JAS moved outside of code.
     private double angleX = -9999;
 
     @Override
@@ -90,20 +92,19 @@ public class DriveTrain extends StandardDriveTrain {
         if (Controls.DriveTrain.TURN_RIGHT()){
             setLeftVelOrPercent(-turnSpeed);
             setRightVelOrPercent(turnSpeed);
-            this.autoAim = false;
+            //JAS not needed this.autoAim = false;
         } else if (Controls.DriveTrain.TURN_LEFT()){
             setLeftVelOrPercent(turnSpeed);
             setRightVelOrPercent(-turnSpeed);
-            this.autoAim = false;
+            //JAS not needed.  this.autoAim = false;
         } else {
             if (Controls.DriveTrain.AUTO_AIM()) {
-                // TODO: these are complete guesses
-                posControl = new PosControl(0, 0.005, 6, 0.02, 0.1);
-                this.autoAim = true;
-            }
-            if (this.autoAim) {
+                //JAS moved posControl = new PosControl(0, 0.005, 6, 0.02, 0.1);
+                //JAS try to fix..  this.autoAim = true;
+            //JAS try to fix..  }
+            //JAS try to fix..  if (this.autoAim) {
                 // TODO: I have no idea if these units are compatible or if the direction is correct lmao
-                double calculatedSpeed = posControl.getSpeed(angleX);
+                double calculatedSpeed = autoAimPosControl.getSpeed(angleX);
                 this.setLeftVelOrPercent(-calculatedSpeed);
                 this.setRightVelOrPercent(calculatedSpeed);
             } else {
