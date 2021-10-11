@@ -38,6 +38,7 @@ public class Controls {
         public static boolean ARM_DOWN() { return aux.getPov(Pov.D_PAD) == 180; }
         public static boolean SPIN_FORWARD() { return aux.getPov(Pov.D_PAD) == 270; }
         public static boolean SPIN_BACKWARD() { return aux.getPov(Pov.D_PAD) == 90; }
+        public static boolean INTAKE_SEQ() { return aux.buttonDown( Button.BACK); }  //JAS added
     }
 
     public static class Shooter {
