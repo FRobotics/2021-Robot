@@ -47,6 +47,8 @@ public class CommandList {
         case GOTO:
             step = (int)currentCommand.arguments[0];
             break;
+
+        // Usage DRIVE(Distance (Feet), Tolerance)
         case DRIVE:
             double currentDist = hailfire.driveTrain.getLeftDistance();
             if (initialize) {
@@ -91,6 +93,12 @@ public class CommandList {
                     initialize = true;
             }
             break;
+        /*case SHOOT:
+            // USAGE SHOOT(angle (degrees), power (0 - 5600), ballCount)
+            if (initialize) {
+                // TODO Turn carosel to correct angle
+            }
+        */     
         case PIXYGOTO:
             initialize = false;
             double pixyOut = hailfire.driveTrain.ReadPixy();
@@ -111,11 +119,11 @@ public class CommandList {
                 currentCommand.arguments[2] = 0.0;
                 currentCommand.arguments[1] = 0.0;
                 currentCommand.arguments[0] = 0.0;
-                hailfire.intake.solenoid.extend();
+                hailfire.intake.solenoid.extend();  // puts intake onto ground
 
                 initialize = false;
             }
-            System.out.println((int)currentCommand.arguments[3]);
+            // jas removed debug  System.out.println((int)currentCommand.arguments[3]);
             switch ((int)currentCommand.arguments[3]) {
             case 0:
                 hailfire.intake.spinner.setPercentOutput(1.0);
@@ -125,7 +133,7 @@ public class CommandList {
                 }
                 break;
             case 1:
-                System.out.println(System.currentTimeMillis() - currentCommand.arguments[2]);
+                // jas removed debug  System.out.println(System.currentTimeMillis() - currentCommand.arguments[2]);
                 if (System.currentTimeMillis() - currentCommand.arguments[2] > 1000) {
                     currentCommand.arguments[3]++; 
                     hailfire.intake.spinner.setPercentOutput(0);

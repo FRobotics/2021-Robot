@@ -30,6 +30,48 @@ public class Hailfire extends Robot {
         )
     );
 
+//     from repos directoy repository -- never updated to github
+//      
+//    private final CommandList commandList = new CommandList(
+//        List.<Command>of(
+//            new Command(Command.CommandType.SLEEP, 200, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 20.0, 0.5, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, 90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 3.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            /*new Command(Command.CommandType.SHOOT, 3.0, 5.0, 0.0, 0.0), */
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 3.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 50.0, 0.5, 0.0, 0.0)
+//        )
+//    );
+//    private final CommandList leftCommands = new CommandList(
+//        List.<Command>of(
+//            new Command(Command.CommandType.SLEEP, 200, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 20.0, 0.5, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, 90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 3.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            /*new Command(Command.CommandType.SHOOT, 3.0, 5.0, 0.0, 0.0), */
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 3.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, -90.0, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, 50.0, 0.5, 0.0, 0.0)
+//        )
+//    );
+//    private final CommandList middleCommands = new CommandList(
+//        List.<Command>of(
+//            new Command(Command.CommandType.SLEEP, 200, 0.0, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, -7.0, 0.5, 0.0, 0.0),
+//            new Command(Command.CommandType.TURN, 17.0, 0.5, 0.0, 0.0),
+//            /*new Command(Command.CommandType.SHOOT, 3.0, 0.5, 0.0, 0.0),*/
+//            new Command(Command.CommandType.TURN, -17.0, 0.5, 0.0, 0.0),
+//            new Command(Command.CommandType.DRIVE, -17.0, 0.5, 0.0, 0.0),
+//            new Command(Command.CommandType.BALL_PICKUP, 0.0, 0.0, 0.0, 0.0)
+//        )
+//     );
+
     public final DriveTrain driveTrain = register(new DriveTrain());
     public final Shooter shooter = register(new Shooter());
     public final Intake intake = register(new Intake());
@@ -356,4 +398,20 @@ public class Hailfire extends Robot {
             })
         ), 3000)
     );
+
+// --- from repos directory - never updated to github...  
+//
+    /*private final List<? extends Action> autoCommands = List.of(
+        new SetupAction(() -> driveTrain.startAction(
+            new SetupAction(
+                () -> commandList.Init()
+            )
+        )),
+        new SetupAction(() -> driveTrain.startAction(
+            new Action(
+                () -> commandList.Execute(this),
+                commandList::Finished
+            )
+        ), commandList::Finished)
+    );*/    
 }
