@@ -24,12 +24,18 @@ public class Intake extends Subsystem {
     //private Encoder pitchEncoder = new Encoder(3, 4);
     public DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
+    //jas added for intake sequence
+    public boolean allowIntakeSequence = false;
+    //jas added for intake sequence
+    public boolean ballDetectSensor = false;
+
     public Intake() {
         super("intake");
     }
     @Override
     public void auto() {
-        System.out.println("Good");
+        ballDetectSensor = sensor.get();
+        //JAS System.out.println("Good");
     }
 
     @Override
@@ -40,6 +46,10 @@ public class Intake extends Subsystem {
     
     @Override
     public void control() {
+
+        //jas added (maybe should be in periodic ??)
+        ballDetectSensor = sensor.get();
+
         if (Controls.Intake.ARM_UP()) {
             solenoid.retract();
         }
@@ -55,12 +65,28 @@ public class Intake extends Subsystem {
                 //pitchMotor.setPercentOutput(.75);
             //} else {
             spinner.setPercentOutput(1);
+            allowIntakeSequence = false;
             //}
         } else if(Controls.Intake.SPIN_BACKWARD() && solenoid.isExtended()) {
             spinner.setPercentOutput(-1);
+            allowIntakeSequence = false;
         } else {
-            spinner.setPercentOutput(0);
+            //JAS added
+            if ( !Controls.Intake.INTAKE_SEQ()) {
+                spinner.setPercentOutput(0);
+            }
+            allowIntakeSequence = true;
         }
+    }
+
+    //JAS added
+    public boolean getBallDetectSensor() {
+        return ballDetectSensor;
+    }
+
+    //JAS added
+    public void setSpinnerOutput( double value ) {
+        spinner.setPercentOutput(value);
     }
 
     @Override
@@ -68,7 +94,7 @@ public class Intake extends Subsystem {
         return Map.of(
             "solenoid", Util.solenoidNTV(solenoid),
             "motor", spinner::getOutputPercent,
-            "sensor", sensor::get
+            "sensor", this::getBallDetectSensor      //JAS changed.  Used to read I/O directly    
         );
     }
 
