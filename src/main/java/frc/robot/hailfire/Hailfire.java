@@ -104,23 +104,23 @@ public class Hailfire extends Robot {
         }
 
         //JAS add the intake sequence here because it requires both Intake and Shooter methods..!!
-        if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
-            procIntakeSequence( initIntakeSequence );
-            initIntakeSequence = false;
-        }
-        else {
+        //if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
+        //    procIntakeSequence( initIntakeSequence );
+        //    initIntakeSequence = false;
+       // }
+        //else {
             // if sequence allowed but not selected set spinner output to zero.
-            if ( intake.allowIntakeSequence ) {
-                intake.setSpinnerOutput(0.0);
-            }
+        //    if ( intake.allowIntakeSequence ) {
+        //        intake.setSpinnerOutput(0.0);
+        //    }
             // if sequence allowed but not selected set carousel outputs to zero.
             // TODO may not need this one... 
-            if ( shooter.allowIntakeSequence ) {
-                shooter.setCarouselTurnMotor(0.0);
-                shooter.setCarouselHeightMotor(0.0);
-            }
-            initIntakeSequence = true;
-        }    
+        //    if ( shooter.allowIntakeSequence ) {
+        //        shooter.setCarouselTurnMotor(0.0);
+        //        shooter.setCarouselHeightMotor(0.0);
+        //    }
+        //    initIntakeSequence = true;
+        //}    
 
         Vision.update();
     }
@@ -136,10 +136,10 @@ public class Hailfire extends Robot {
         double desiredCarouselTurnOutput = 0.0;
 
         // tuning constants
-        final double carouselDownSpeed = 0.125;
+        final double carouselDownSpeed = -1.0;
         final double intakeSpinSpeed = 1.0;
         final double carouselDownTime = 2.0;
-        final double intakeSpinOffDelay = 0.2;
+        final double intakeSpinOffDelay = 0.5;
         final double carouselTurnSpeed = 0.7;
 
         if ( firstStep ) {
@@ -223,6 +223,9 @@ public class Hailfire extends Robot {
 
         }
 
+        System.out.println("Intake Output: " + desiredIntakeSpinnerOutput);
+        System.out.println("Carousel Height Output: " + desiredCarouselHeightOutput);
+        System.out.println("Carousel Turn Output: " + desiredCarouselTurnOutput);
         // set intake spinner output.
         intake.setSpinnerOutput(desiredIntakeSpinnerOutput);
         // set carousel height adjust output

@@ -160,9 +160,9 @@ public class Shooter extends Subsystem {
         }
 
         // JAS added qualification to avoid fighting outputs...
-        if ( !internalAllowIntakeSequence || !Controls.Intake.INTAKE_SEQ() ) {
+        //if ( !internalAllowIntakeSequence || !Controls.Intake.INTAKE_SEQ() ) {
             carousel.setPercentOutput(carouselOutput);
-        }
+        //}
 
         // move carousel up/down
 
@@ -187,9 +187,9 @@ public class Shooter extends Subsystem {
                 pitchAim();
             } else {
                 // JAS added qualification to avoid fighting outputs...
-                if ( !Controls.Intake.INTAKE_SEQ() ) {
+                //if ( !Controls.Intake.INTAKE_SEQ() ) {
                     pitchMotor.setPercentOutput(0);
-                }        
+                //}        
             }
 
             allowIntakeSequence = internalAllowIntakeSequence; //jas added for intake sequence
