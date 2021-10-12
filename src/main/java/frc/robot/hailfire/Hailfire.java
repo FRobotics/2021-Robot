@@ -212,13 +212,17 @@ public class Hailfire extends Robot {
 
             // 8 - stop rotate.
             case 8:
-                intakeSequenceState = 0;
+                intakeSequenceState = 9;
+                break;
+            
+            // 9 - DONE
+            case 9:
                 break;
 
             // should never get here...
             // set known state.
             default:
-                intakeSequenceState = 0;
+                intakeSequenceState = 9;
                 break;
 
         }
@@ -233,7 +237,7 @@ public class Hailfire extends Robot {
         // set carousel spin output
         shooter.setCarouselTurnMotor(desiredCarouselTurnOutput);
         
-        return ( intakeSequenceState == 0 );
+        return ( intakeSequenceState == 9 );
     }
 
     // =========================================================================================
