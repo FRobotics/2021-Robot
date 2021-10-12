@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused")
 public class Hailfire extends Robot {
+    
     private final CommandList commandList = new CommandList(
         List.<Command>of(
             new Command(Command.CommandType.BALL_PICKUP, 0.0, 0.0, 0.0, 0.0),
