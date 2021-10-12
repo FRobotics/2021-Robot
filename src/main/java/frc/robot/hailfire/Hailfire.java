@@ -17,6 +17,8 @@ import frc.robot.hailfire.subsystem.Shooter;
 import frc.robot.base.input.Controller;
 import frc.robot.base.device.Pixy;
 import edu.wpi.first.wpilibj.Timer;  //jas added
+import edu.wpi.first.networktables.NetworkTableEntry; //jas added
+
 
 import java.util.List;
 
@@ -79,19 +81,49 @@ public class Hailfire extends Robot {
     public final Climber climber = register(new Climber());
 
     private PosControl drivePosControl = new PosControl(10, 1, 0.1, 0.5, 5);
-    
-    public Hailfire() {
-        this.setAutoActions(auto1);
-        SmartDashboard.getEntry("Auto List").setStringArray(autoList);
-        registerController(Controls.drive);
-    //    registerController(Controls.shooter); // JPS, we got rid of the controller
-        registerController(Controls.aux);
-    }
+
 
     //JAS added intake sequence
     private boolean initIntakeSequence = true;
     private int intakeSequenceState = 0;
     private Timer intakeSeqTimer = new Timer();
+    public double intakeSeqCarouselPitchDmd = 0.0;
+    public double intakeSeqCarouselSpinDmd = 0.0;
+    public double intakeSeqIntakeSpinDmd = 0.0;
+    public boolean intakeSeqInProg = false;
+    private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
+    private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
+    private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
+    private NetworkTableEntry intakeSeqStateNTEntry;
+    
+    //jas add global variable for camera number
+    private int switchedCamNumber = 0;   // toggles between 0 and 1.
+    private NetworkTableEntry cameraNumNTEntry;
+
+    
+    public Hailfire() {
+
+        this.setAutoActions(auto1);
+        SmartDashboard.getEntry("Auto List").setStringArray(autoList);
+        registerController(Controls.drive);
+    //    registerController(Controls.shooter); // JPS, we got rid of the controller
+        registerController(Controls.aux);
+
+        cameraNumNTEntry = NTHandler.getVisionEntry("cameraNumber");    // switched cam number
+        double dblValue = switchedCamNumber;    
+        cameraNumNTEntry.setDouble( dblValue ); //set initial value
+
+        //jas added intake seq
+        intakeSeqCarPitchDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarPitchDmd");
+        intakeSeqCarTurnDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarTurnDmd");
+        intakeSeqIntakeSpinDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/IntakeSpinDmd");
+        intakeSeqStateNTEntry = NTHandler.getRobotEntry("IntakeSeq/State");
+        intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
+        intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
+        intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
+        intakeSeqStateNTEntry.setDouble(intakeSequenceState);
+    
+    }
 
     @Override
     public void robotPeriodic() {
@@ -99,28 +131,35 @@ public class Hailfire extends Robot {
 
         if ( Controls.DriveTrain.SWITCH_CAM() ) {
         // if (Controls.aux.getPov(Pov.D_PAD) >= 0) {   //JAS use generic definition instead
-            var cameraNum = NTHandler.getVisionEntry("cameraNumber");
-            cameraNum.setValue(cameraNum.getDouble(-1) + 1);
+            switchedCamNumber = 1 - switchedCamNumber;  //jas toggle between 0 and 1.
+            double dblValue = switchedCamNumber;   
+            cameraNumNTEntry.setValue( dblValue );
         }
 
         //JAS add the intake sequence here because it requires both Intake and Shooter methods..!!
-        //if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
-        //    procIntakeSequence( initIntakeSequence );
-        //    initIntakeSequence = false;
-       // }
-        //else {
-            // if sequence allowed but not selected set spinner output to zero.
-        //    if ( intake.allowIntakeSequence ) {
-        //        intake.setSpinnerOutput(0.0);
-        //    }
-            // if sequence allowed but not selected set carousel outputs to zero.
-            // TODO may not need this one... 
-        //    if ( shooter.allowIntakeSequence ) {
-        //        shooter.setCarouselTurnMotor(0.0);
-        //        shooter.setCarouselHeightMotor(0.0);
-        //    }
-        //    initIntakeSequence = true;
-        //}    
+        if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
+            procIntakeSequence( initIntakeSequence );
+            initIntakeSequence = false;
+            intakeSeqInProg = true;
+        }
+        else {
+            intakeSeqInProg = false;
+            // set output demands to zero.
+            intakeSeqCarouselPitchDmd = 0.0;
+            intakeSeqCarouselSpinDmd = 0.0;
+            intakeSeqIntakeSpinDmd = 0.0;
+            // set next time the sequence runs it will init.
+            initIntakeSequence = true;
+        }    
+        // debug
+        //System.out.println("Intake Output: " + intakeSeqIntakeSpinDmd);
+        //System.out.println("Carousel Height Output: " + intakeSeqCarouselPitchDmd);
+        //System.out.println("Carousel Turn Output: " + intakeSeqCarouselSpinDmd);
+        intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
+        intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
+        intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
+        intakeSeqStateNTEntry.setDouble(intakeSequenceState);
+
 
         Vision.update();
     }
@@ -128,7 +167,7 @@ public class Hailfire extends Robot {
     // =========================================================================================
     //JAS added
     //  process the state machine for the intake sequence
-    // TODO make sure states can't wait keep the same state forever.. (driver just lets go of button0)
+    // TODO could add timeout to conditions that could wait forever.. however driver just releases button.
     private boolean procIntakeSequence( boolean firstStep ) {
 
         double desiredIntakeSpinnerOutput = 0.0;
@@ -136,9 +175,9 @@ public class Hailfire extends Robot {
         double desiredCarouselTurnOutput = 0.0;
 
         // tuning constants
-        final double carouselDownSpeed = -1.0;
+        final double carouselUpSpeed = -1.0;
         final double intakeSpinSpeed = 1.0;
-        final double carouselDownTime = 2.0;
+        final double carouselUpTime = 2.5;
         final double intakeSpinOffDelay = 0.5;
         final double carouselTurnSpeed = 0.7;
 
@@ -148,17 +187,18 @@ public class Hailfire extends Robot {
 
         switch ( intakeSequenceState ) {
 
-            // 0 - start timer, set carousel motor down
+            // 0 - start timer, raise the carousel
             case 0:
                 intakeSequenceState = 1;
-                desiredCarouselHeightOutput = carouselDownSpeed;
+                desiredCarouselHeightOutput = carouselUpSpeed;
+                intakeSeqTimer.reset();
                 intakeSeqTimer.start();
                 break;
 
-            // 1 - carousel motor down.  Has timer expired
+            // 1 - continue raising the carousel.  Has timer expired?
             case 1:
-                desiredCarouselHeightOutput = carouselDownSpeed;
-                if ( intakeSeqTimer.hasElapsed( carouselDownTime) ) {
+                desiredCarouselHeightOutput = carouselUpSpeed;
+                if ( intakeSeqTimer.hasElapsed( carouselUpTime) ) {
                     intakeSequenceState = 2;
                 }
                 break;
@@ -175,6 +215,7 @@ public class Hailfire extends Robot {
             // 3 - spin intake - start timer
             case 3:
                 desiredIntakeSpinnerOutput = intakeSpinSpeed;
+                intakeSeqTimer.reset();
                 intakeSeqTimer.start();
                 intakeSequenceState = 4;
                 break;
@@ -227,16 +268,15 @@ public class Hailfire extends Robot {
 
         }
 
-        System.out.println("Intake Output: " + desiredIntakeSpinnerOutput);
-        System.out.println("Carousel Height Output: " + desiredCarouselHeightOutput);
-        System.out.println("Carousel Turn Output: " + desiredCarouselTurnOutput);
         // set intake spinner output.
-        intake.setSpinnerOutput(desiredIntakeSpinnerOutput);
+        intakeSeqIntakeSpinDmd = desiredIntakeSpinnerOutput;
         // set carousel height adjust output
-        shooter.setCarouselHeightMotor(desiredCarouselHeightOutput);
+        intakeSeqCarouselPitchDmd = desiredCarouselHeightOutput;
         // set carousel spin output
-        shooter.setCarouselTurnMotor(desiredCarouselTurnOutput);
-        
+        intakeSeqCarouselSpinDmd = desiredCarouselTurnOutput;
+
+        //System.out.println("Sequence state: " + intakeSequenceState);
+    
         return ( intakeSequenceState == 9 );
     }
 
