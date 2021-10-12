@@ -4,6 +4,7 @@ import frc.robot.base.device.DoubleSolenoid4150;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -62,7 +63,13 @@ public class Util {
     public static Trajectory loadTrajectory(String trajectoryJSON) {
         try {
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-            return TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            //JAS added to try and not blow up on roborio...
+            if ( Files.exists( trajectoryPath ) ) {
+                return TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            }
+            else {
+                return new Trajectory();
+            }                
         } catch (IOException ex) {
             DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
             return new Trajectory();
