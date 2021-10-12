@@ -87,10 +87,10 @@ public class Hailfire extends Robot {
     private boolean initIntakeSequence = true;
     private int intakeSequenceState = 0;
     private Timer intakeSeqTimer = new Timer();
-    public double intakeSeqCarouselPitchDmd = 0.0;
-    public double intakeSeqCarouselSpinDmd = 0.0;
-    public double intakeSeqIntakeSpinDmd = 0.0;
-    public boolean intakeSeqInProg = false;
+    public static double intakeSeqCarouselPitchDmd = 0.0;
+    public static double intakeSeqCarouselSpinDmd = 0.0;
+    public static double intakeSeqIntakeSpinDmd = 0.0;
+    public static boolean intakeSeqInProg = false;
     private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
     private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
     private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;

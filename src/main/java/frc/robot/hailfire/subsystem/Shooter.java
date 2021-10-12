@@ -9,6 +9,7 @@ import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
+import frc.robot.hailfire.Hailfire;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.device.motor.PhoenixMotor;
 import frc.robot.base.device.motor.EncoderMotor;
@@ -101,7 +102,7 @@ public class Shooter extends Subsystem {
         //jas added
         carouselTurnLimitSwitch = carouselSwitch.get();
 
-        internalAllowIntakeSequence = true;
+        internalAllowIntakeSequence = true;    //jas added for intake seq
 
         if (Controls.Shooter.SHOOT()) {
             shoot(true);
@@ -123,21 +124,21 @@ public class Shooter extends Subsystem {
         if (Controls.Shooter.MANUAL_CAROUSEL_RIGHT()) {
             carouselOutput = 0.7;
             autoCarousel = false;
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
         } else if (Controls.Shooter.MANUAL_CAROUSEL_LEFT()) {
             carouselOutput = -0.7;
             autoCarousel = false;
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
         } else if (Controls.Shooter.AUTO_CAROUSEL_LEFT()) { // semi manual (go to limit switch)
             carouselOutput = -0.7;
             autoCarousel = true;
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
         } else if (Controls.Shooter.AUTO_CAROUSEL_RIGHT()) {
             carouselOutput = 0.7;
             autoCarousel = true;
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
         } else if (autoCarousel) {
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
             // edge on detection
             // if (!carouselSwitch.get()) {
             if (!carouselTurnLimitSwitch) {     //JAS use variable - only read I/O once.
@@ -151,45 +152,50 @@ public class Shooter extends Subsystem {
             }
         } else { // if nothing else
             if (!spinForShooter) {
-                carouselOutput = 0;
+                if ( Hailfire.intakeSeqInProg) {    //jas added
+                    carouselOutput = Hailfire.intakeSeqCarouselSpinDmd;
+                }
+                else {
+                    carouselOutput = 0;
+                }                    
             }
             //JAS added
             else {
-                internalAllowIntakeSequence = false;
+                internalAllowIntakeSequence = false;    //jas added for intake seq
             }
         }
 
-        // JAS added qualification to avoid fighting outputs...
-        //if ( !internalAllowIntakeSequence || !Controls.Intake.INTAKE_SEQ() ) {
-            carousel.setPercentOutput(carouselOutput);
-        //}
+        carousel.setPercentOutput(carouselOutput);
 
         // move carousel up/down
 
         if (Controls.Shooter.CAROUSEL_DOWN()) {
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
             autoPitch = false;
             pitchMotor.setPercentOutput(.125);
         } else if (Controls.Shooter.CAROUSEL_UP()) {
-            internalAllowIntakeSequence = false;
+            internalAllowIntakeSequence = false;    //jas added for intake seq
             autoPitch = false;
             pitchMotor.setPercentOutput(-0.75);  //TODO: retry -.60 JAS
         } else {
             //todo jas look at this.... test_pitch is not held down to do positioning...
             if (Controls.Shooter.TEST_PITCH()) {
-                internalAllowIntakeSequence = false;
+                internalAllowIntakeSequence = false;    //jas added for intake seq
                 autoPitch = true;
                 pitchPosControl.target = pitchTarget / 600;
                 pitchPosControl.reset();
             }
             if (autoPitch) {
-                internalAllowIntakeSequence = false;
+                internalAllowIntakeSequence = false;    //jas added for intake seq
                 pitchAim();
             } else {
-                // JAS added qualification to avoid fighting outputs...
-                //if ( !Controls.Intake.INTAKE_SEQ() ) {
+                // JAS added qualification to avoid fighting outputs...  now virtual...
+                if ( Hailfire.intakeSeqInProg ) {
+                    pitchMotor.setPercentOutput(Hailfire.intakeSeqCarouselPitchDmd);
+                }
+                else {
                     pitchMotor.setPercentOutput(0);
-                //}        
+                }        
             }
 
             allowIntakeSequence = internalAllowIntakeSequence; //jas added for intake sequence

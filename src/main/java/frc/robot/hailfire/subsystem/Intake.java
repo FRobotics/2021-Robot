@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.Encoder;  //JAS not used
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
+import frc.robot.hailfire.Hailfire;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.device.motor.PhoenixMotor;
@@ -71,8 +72,11 @@ public class Intake extends Subsystem {
             spinner.setPercentOutput(-1);
             allowIntakeSequence = false;
         } else {
-            //JAS added
-            if ( !Controls.Intake.INTAKE_SEQ()) {
+            //JAS added -- revised to use remote demand.
+            if ( Hailfire.intakeSeqInProg ) {
+                spinner.setPercentOutput(Hailfire.intakeSeqIntakeSpinDmd);
+            }
+            else {
                 spinner.setPercentOutput(0);
             }
             allowIntakeSequence = true;
