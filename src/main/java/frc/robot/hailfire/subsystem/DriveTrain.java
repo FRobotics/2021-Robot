@@ -11,6 +11,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+//import edu.wpi.first.networktables.NetworkTable;  //jas
+//import edu.wpi.first.networktables.NetworkTableType;  //jas
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.subsystem.StandardDriveTrain;
@@ -20,11 +22,13 @@ import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.device.motor.PhoenixMotorPair;
+import frc.robot.base.NTHandler;
 //import frc.robot.base.NTHandler; // JPS It was never used
 import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.Pixy;
 import frc.robot.hailfire.MotorConfig;
 //import frc.robot.hailfire.Vision; //TODO Find out why this isnt used
+import edu.wpi.first.networktables.NetworkTableEntry; //jas added
 
 public class DriveTrain extends StandardDriveTrain {
 
@@ -78,16 +82,32 @@ public class DriveTrain extends StandardDriveTrain {
                         MotorConfig.DriveTrain.LOW_CONFIG
                 ),
                 10, 19, LOW_MAX_SPEED);
-    }
+
+        cameraNumNTEntry = NTHandler.getVisionEntry("cameraNumber");
+        double dblValueC = switchedCamNumber;   
+        cameraNumNTEntry.forceSetDouble( dblValueC );
+}
     
     // TODO: these are complete guesses
     // JAS renamed for clarity
     private PosControl autoAimPosControl = new PosControl(0, 0.005, 6, 0.02, 0.1);  //JAS moved outside of code.
     private double angleX = -9999;
 
+    private static final double turnSpeed = 0.13;
+    private int switchedCamNumber = 0;
+    private NetworkTableEntry cameraNumNTEntry;
+
     @Override
     public void control() {
-        double turnSpeed = 0.13;
+
+        //jas moved from hailfire....
+        if ( Controls.DriveTrain.SWITCH_CAM() ) {
+        // if (Controls.aux.getPov(Pov.D_PAD) >= 0) {   //JAS use generic definition instead
+            switchedCamNumber = 1 - switchedCamNumber;  //jas toggle between 0 and 1.
+            double dblValueC = switchedCamNumber;   
+            // System.out.println("camera switched: " + dblValue);
+            cameraNumNTEntry.forceSetDouble( dblValueC );
+        }
 
         if (Controls.DriveTrain.TURN_LEFT()){
             setLeftVelOrPercent(-turnSpeed);

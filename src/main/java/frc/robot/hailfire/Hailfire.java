@@ -97,9 +97,6 @@ public class Hailfire extends Robot {
     private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
     private NetworkTableEntry intakeSeqStateNTEntry;
     
-    //jas add global variable for camera number
-    private int switchedCamNumber = 0;   // toggles between 0 and 1.
-    private NetworkTableEntry cameraNumNTEntry;
 
     
     public Hailfire() {
@@ -109,10 +106,6 @@ public class Hailfire extends Robot {
         registerController(Controls.drive);
     //    registerController(Controls.shooter); // JPS, we got rid of the controller
         registerController(Controls.aux);
-
-        cameraNumNTEntry = NTHandler.getVisionEntry("cameraNumber");    // switched cam number
-        double dblValue = switchedCamNumber;    
-        cameraNumNTEntry.setDouble( dblValue ); //set initial value
 
         //jas added intake seq
         intakeSeqCarPitchDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarPitchDmd");
@@ -129,14 +122,6 @@ public class Hailfire extends Robot {
     @Override
     public void robotPeriodic() {
         super.robotPeriodic();
-
-        if ( Controls.DriveTrain.SWITCH_CAM() ) {
-        // if (Controls.aux.getPov(Pov.D_PAD) >= 0) {   //JAS use generic definition instead
-            switchedCamNumber = 1 - switchedCamNumber;  //jas toggle between 0 and 1.
-            double dblValue = switchedCamNumber;   
-            // System.out.println("camera switched: " + dblValue);
-            cameraNumNTEntry.setDouble( dblValue );
-        }
 
         //JAS add the intake sequence here because it requires both Intake and Shooter methods..!!
         if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
