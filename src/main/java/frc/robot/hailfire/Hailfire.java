@@ -134,7 +134,7 @@ public class Hailfire extends Robot {
         // if (Controls.aux.getPov(Pov.D_PAD) >= 0) {   //JAS use generic definition instead
             switchedCamNumber = 1 - switchedCamNumber;  //jas toggle between 0 and 1.
             double dblValue = switchedCamNumber;   
-            System.out.println("camera switched: " + dblValue);
+            // System.out.println("camera switched: " + dblValue);
             cameraNumNTEntry.setDouble( dblValue );
         }
 
