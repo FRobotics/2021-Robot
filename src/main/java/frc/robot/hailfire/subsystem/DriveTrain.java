@@ -89,11 +89,11 @@ public class DriveTrain extends StandardDriveTrain {
     public void control() {
         double turnSpeed = 0.13;
 
-        if (Controls.DriveTrain.TURN_RIGHT()){
+        if (Controls.DriveTrain.TURN_LEFT()){
             setLeftVelOrPercent(-turnSpeed);
             setRightVelOrPercent(turnSpeed);
             //JAS not needed this.autoAim = false;
-        } else if (Controls.DriveTrain.TURN_LEFT()){
+        } else if (Controls.DriveTrain.TURN_RIGHT()){
             setLeftVelOrPercent(turnSpeed);
             setRightVelOrPercent(-turnSpeed);
             //JAS not needed.  this.autoAim = false;
