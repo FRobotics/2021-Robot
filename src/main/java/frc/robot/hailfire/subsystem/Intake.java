@@ -1,4 +1,5 @@
 package frc.robot.hailfire.subsystem;
+//import frc.robot.base.NTHandler;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 // import com.ctre.phoenix.motorcontrol.can.TalonSRX;  //JAS not used
@@ -7,12 +8,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.Encoder;  //JAS not used
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
-import frc.robot.hailfire.Hailfire;
+//import frc.robot.hailfire.Hailfire;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.device.motor.PhoenixMotor;
 import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.motor.Motor;
+//import edu.wpi.first.networktables.NetworkTableEntry; //jas added
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -27,12 +29,29 @@ public class Intake extends Subsystem {
 
     //jas added for intake sequence
     public boolean allowIntakeSequence = false;
+    //private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
+    //private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
+    //private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
+    //private NetworkTableEntry intakeSeqStateNTEntry;
+
+
     //jas added for intake sequence
     public boolean ballDetectSensor = false;
 
     public Intake() {
         super("intake");
+
+        //jas added intake seq
+        //intakeSeqCarPitchDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarPitchDmd");
+        //intakeSeqCarTurnDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarTurnDmd");
+        //intakeSeqIntakeSpinDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/IntakeSpinDmd");
+        //intakeSeqStateNTEntry = NTHandler.getRobotEntry("IntakeSeq/State");
+        //intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
+        //intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
+        //intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
+        //intakeSeqStateNTEntry.setDouble(intakeSequenceState);
     }
+
     @Override
     public void auto() {
         ballDetectSensor = sensor.get();
@@ -72,15 +91,34 @@ public class Intake extends Subsystem {
             spinner.setPercentOutput(-1);
             allowIntakeSequence = false;
         } else {
-            //JAS added -- revised to use remote demand.
-            if ( Hailfire.intakeSeqInProg ) {
-                spinner.setPercentOutput(Hailfire.intakeSeqIntakeSpinDmd);
-            }
-            else {
+        //JAS add the intake sequence here because it wasn't running in hailfire periodic ??
+            //if ( Controls.Intake.INTAKE_SEQ() ) {
+                //hailfire.procIntakeSequence( initIntakeSequence );
+                //initIntakeSequence = false;
+                //intakeSeqInProg = true;
+                //spinner.setPercentOutput(Hailfire.intakeSeqIntakeSpinDmd);
+            //}
+            //else {
                 spinner.setPercentOutput(0);
-            }
-            allowIntakeSequence = true;
+                //intakeSeqInProg = false;
+                // set output demands to zero.
+                //intakeSeqCarouselPitchDmd = 0.0;
+                //intakeSeqCarouselSpinDmd = 0.0;
+                //intakeSeqIntakeSpinDmd = 0.0;
+                // set next time the sequence runs it will init.
+                //initIntakeSequence = true;
+            //}    
         }
+
+        // debug
+        //System.out.println("Intake Output: " + intakeSeqIntakeSpinDmd);
+        //System.out.println("Carousel Height Output: " + intakeSeqCarouselPitchDmd);
+        //System.out.println("Carousel Turn Output: " + intakeSeqCarouselSpinDmd);
+        //intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
+        //intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
+        //intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
+        //intakeSeqStateNTEntry.setDouble(intakeSequenceState);
+
     }
 
     //JAS added

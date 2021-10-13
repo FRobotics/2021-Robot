@@ -85,18 +85,15 @@ public class Hailfire extends Robot {
 
 
     //JAS added intake sequence
-    private boolean initIntakeSequence = true;
     private int intakeSequenceState = 0;
     private Timer intakeSeqTimer = new Timer();
     public static double intakeSeqCarouselPitchDmd = 0.0;
     public static double intakeSeqCarouselSpinDmd = 0.0;
     public static double intakeSeqIntakeSpinDmd = 0.0;
     public static boolean intakeSeqInProg = false;
-    private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
-    private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
-    private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
-    private NetworkTableEntry intakeSeqStateNTEntry;
-    
+
+    private boolean initIntakeSequence = true;
+  
 
     
     public Hailfire() {
@@ -107,15 +104,6 @@ public class Hailfire extends Robot {
     //    registerController(Controls.shooter); // JPS, we got rid of the controller
         registerController(Controls.aux);
 
-        //jas added intake seq
-        intakeSeqCarPitchDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarPitchDmd");
-        intakeSeqCarTurnDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/CarTurnDmd");
-        intakeSeqIntakeSpinDmdNTEntry = NTHandler.getRobotEntry("IntakeSeq/IntakeSpinDmd");
-        intakeSeqStateNTEntry = NTHandler.getRobotEntry("IntakeSeq/State");
-        intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
-        intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
-        intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
-        intakeSeqStateNTEntry.setDouble(intakeSequenceState);
     
     }
 
@@ -123,151 +111,8 @@ public class Hailfire extends Robot {
     public void robotPeriodic() {
         super.robotPeriodic();
 
-        //JAS add the intake sequence here because it requires both Intake and Shooter methods..!!
-        if ( Controls.Intake.INTAKE_SEQ() && intake.allowIntakeSequence && shooter.allowIntakeSequence ) {
-            procIntakeSequence( initIntakeSequence );
-            initIntakeSequence = false;
-            intakeSeqInProg = true;
-        }
-        else {
-            intakeSeqInProg = false;
-            // set output demands to zero.
-            intakeSeqCarouselPitchDmd = 0.0;
-            intakeSeqCarouselSpinDmd = 0.0;
-            intakeSeqIntakeSpinDmd = 0.0;
-            // set next time the sequence runs it will init.
-            initIntakeSequence = true;
-        }    
-        // debug
-        //System.out.println("Intake Output: " + intakeSeqIntakeSpinDmd);
-        //System.out.println("Carousel Height Output: " + intakeSeqCarouselPitchDmd);
-        //System.out.println("Carousel Turn Output: " + intakeSeqCarouselSpinDmd);
-        intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
-        intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
-        intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
-        intakeSeqStateNTEntry.setDouble(intakeSequenceState);
-
-
         Vision.update();
     }
-
-    // =========================================================================================
-    //JAS added
-    //  process the state machine for the intake sequence
-    // TODO could add timeout to conditions that could wait forever.. however driver just releases button.
-    private boolean procIntakeSequence( boolean firstStep ) {
-
-        double desiredIntakeSpinnerOutput = 0.0;
-        double desiredCarouselHeightOutput = 0.0;
-        double desiredCarouselTurnOutput = 0.0;
-
-        // tuning constants
-        final double carouselUpSpeed = -1.0;
-        final double intakeSpinSpeed = 1.0;
-        final double carouselUpTime = 2.5;
-        final double intakeSpinOffDelay = 0.5;
-        final double carouselTurnSpeed = 0.7;
-
-        if ( firstStep ) {
-            intakeSequenceState = 0;
-        }
-
-        switch ( intakeSequenceState ) {
-
-            // 0 - start timer, raise the carousel
-            case 0:
-                intakeSequenceState = 1;
-                desiredCarouselHeightOutput = carouselUpSpeed;
-                intakeSeqTimer.reset();
-                intakeSeqTimer.start();
-                break;
-
-            // 1 - continue raising the carousel.  Has timer expired?
-            case 1:
-                desiredCarouselHeightOutput = carouselUpSpeed;
-                if ( intakeSeqTimer.hasElapsed( carouselUpTime) ) {
-                    intakeSequenceState = 2;
-                }
-                break;
-
-            // 2 - spin intake, look for ball detect.
-            case 2:
-                intakeSeqTimer.stop();
-                desiredIntakeSpinnerOutput = intakeSpinSpeed;
-                if ( intake.ballDetectSensor ) {
-                    intakeSequenceState = 3;
-                }
-                break;
-
-            // 3 - spin intake - start timer
-            case 3:
-                desiredIntakeSpinnerOutput = intakeSpinSpeed;
-                intakeSeqTimer.reset();
-                intakeSeqTimer.start();
-                intakeSequenceState = 4;
-                break;
-
-            // 4 - spin intake - check timer
-            case 4:
-                desiredIntakeSpinnerOutput = intakeSpinSpeed;
-                if ( intakeSeqTimer.hasElapsed( intakeSpinOffDelay ) ) {
-                    intakeSequenceState = 5;
-                }
-                break;
-
-            // 5 - stop spin, start rotate
-            case 5:
-                desiredCarouselTurnOutput = carouselTurnSpeed;
-                intakeSeqTimer.stop();
-                intakeSequenceState = 6;
-                break;
-
-            // 6 - rotate, look for limit switch off..
-            case 6:
-                desiredCarouselTurnOutput = carouselTurnSpeed;
-                if ( shooter.getCarouselTurnLimitSwitch() ) {
-                    intakeSequenceState = 7;
-                }
-                break;
-
-            // 7 - rotate, look for limit switch off..
-            case 7:
-                desiredCarouselTurnOutput = carouselTurnSpeed;
-                if ( shooter.getCarouselTurnLimitSwitch() ) {
-                    intakeSequenceState = 8;
-                }
-                break;
-
-            // 8 - stop rotate.
-            case 8:
-                intakeSequenceState = 9;
-                break;
-            
-            // 9 - DONE
-            case 9:
-                break;
-
-            // should never get here...
-            // set known state.
-            default:
-                intakeSequenceState = 9;
-                break;
-
-        }
-
-        // set intake spinner output.
-        intakeSeqIntakeSpinDmd = desiredIntakeSpinnerOutput;
-        // set carousel height adjust output
-        intakeSeqCarouselPitchDmd = desiredCarouselHeightOutput;
-        // set carousel spin output
-        intakeSeqCarouselSpinDmd = desiredCarouselTurnOutput;
-
-        //System.out.println("Sequence state: " + intakeSequenceState);
-    
-        return ( intakeSequenceState == 9 );
-    }
-
-    // =========================================================================================
 
     private final String[] autoList = new String[]{
         "None", "Auto 1", "Trajectory Test", "Right Motor Test", "Command List", "Slalom", "BounceTogether", "Bounce1", "Bounce2","Bounce3","Bounce4", "Barrel Race"
@@ -583,4 +428,125 @@ public class Hailfire extends Robot {
             )
         ), commandList::Finished)
     );*/    
+
+
+
+    // =========================================================================================
+    //JAS added
+    //  process the state machine for the intake sequence
+    // TODO could add timeout to conditions that could wait forever.. however driver just releases button.
+    public boolean procIntakeSequence( boolean firstStep ) {
+
+        double desiredIntakeSpinnerOutput = 0.0;
+        double desiredCarouselHeightOutput = 0.0;
+        double desiredCarouselTurnOutput = 0.0;
+
+        // tuning constants
+        final double carouselUpSpeed = -1.0;
+        final double intakeSpinSpeed = 1.0;
+        final double carouselUpTime = 2.5;
+        final double intakeSpinOffDelay = 0.5;
+        final double carouselTurnSpeed = 0.7;
+
+        if ( firstStep ) {
+            intakeSequenceState = 0;
+        }
+
+        switch ( intakeSequenceState ) {
+
+            // 0 - start timer, raise the carousel
+            case 0:
+                intakeSequenceState = 1;
+                desiredCarouselHeightOutput = carouselUpSpeed;
+                intakeSeqTimer.reset();
+                intakeSeqTimer.start();
+                break;
+
+            // 1 - continue raising the carousel.  Has timer expired?
+            case 1:
+                desiredCarouselHeightOutput = carouselUpSpeed;
+                if ( intakeSeqTimer.hasElapsed( carouselUpTime) ) {
+                    intakeSequenceState = 2;
+                }
+                break;
+
+            // 2 - spin intake, look for ball detect.
+            case 2:
+                intakeSeqTimer.stop();
+                desiredIntakeSpinnerOutput = intakeSpinSpeed;
+                if ( intake.ballDetectSensor ) {
+                    intakeSequenceState = 3;
+                }
+                break;
+
+            // 3 - spin intake - start timer
+            case 3:
+                desiredIntakeSpinnerOutput = intakeSpinSpeed;
+                intakeSeqTimer.reset();
+                intakeSeqTimer.start();
+                intakeSequenceState = 4;
+                break;
+
+            // 4 - spin intake - check timer
+            case 4:
+                desiredIntakeSpinnerOutput = intakeSpinSpeed;
+                if ( intakeSeqTimer.hasElapsed( intakeSpinOffDelay ) ) {
+                    intakeSequenceState = 5;
+                }
+                break;
+
+            // 5 - stop spin, start rotate
+            case 5:
+                desiredCarouselTurnOutput = carouselTurnSpeed;
+                intakeSeqTimer.stop();
+                intakeSequenceState = 6;
+                break;
+
+            // 6 - rotate, look for limit switch off..
+            case 6:
+                desiredCarouselTurnOutput = carouselTurnSpeed;
+                if ( shooter.getCarouselTurnLimitSwitch() ) {
+                    intakeSequenceState = 7;
+                }
+                break;
+
+            // 7 - rotate, look for limit switch off..
+            case 7:
+                desiredCarouselTurnOutput = carouselTurnSpeed;
+                if ( shooter.getCarouselTurnLimitSwitch() ) {
+                    intakeSequenceState = 8;
+                }
+                break;
+
+            // 8 - stop rotate.
+            case 8:
+                intakeSequenceState = 9;
+                break;
+            
+            // 9 - DONE
+            case 9:
+                break;
+
+            // should never get here...
+            // set known state.
+            default:
+                intakeSequenceState = 9;
+                break;
+
+        }
+
+        // set intake spinner output.
+        intakeSeqIntakeSpinDmd = desiredIntakeSpinnerOutput;
+        // set carousel height adjust output
+        intakeSeqCarouselPitchDmd = desiredCarouselHeightOutput;
+        // set carousel spin output
+        intakeSeqCarouselSpinDmd = desiredCarouselTurnOutput;
+
+        //System.out.println("Sequence state: " + intakeSequenceState);
+    
+        return ( intakeSequenceState == 9 );
+    }
+
+    // =========================================================================================
+
 }
