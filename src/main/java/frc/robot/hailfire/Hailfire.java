@@ -87,12 +87,13 @@ public class Hailfire extends Robot {
     //JAS added intake sequence
     private int intakeSequenceState = 0;
     private Timer intakeSeqTimer = new Timer();
-    public static double intakeSeqCarouselPitchDmd = 0.0;
-    public static double intakeSeqCarouselSpinDmd = 0.0;
-    public static double intakeSeqIntakeSpinDmd = 0.0;
-    public static boolean intakeSeqInProg = false;
-
-    private boolean initIntakeSequence = true;
+    public double intakeSeqCarouselPitchDmd = 0.0;
+    public double intakeSeqCarouselSpinDmd = 0.0;
+    public double intakeSeqIntakeSpinDmd = 0.0;
+    public boolean intakeSeqInProg = false;
+    public boolean allowIntakeSeqShooter = false; // shooter allows intake seq.
+    // complete kludge !!
+    public static Hailfire objHailfire;
   
 
     
@@ -104,7 +105,7 @@ public class Hailfire extends Robot {
     //    registerController(Controls.shooter); // JPS, we got rid of the controller
         registerController(Controls.aux);
 
-    
+        objHailfire = this;
     }
 
     @Override
@@ -435,6 +436,7 @@ public class Hailfire extends Robot {
     //JAS added
     //  process the state machine for the intake sequence
     // TODO could add timeout to conditions that could wait forever.. however driver just releases button.
+    // This needs to be in Hailfire because it calls out to intake and shooter..
     public boolean procIntakeSequence( boolean firstStep ) {
 
         double desiredIntakeSpinnerOutput = 0.0;
@@ -545,6 +547,10 @@ public class Hailfire extends Robot {
         //System.out.println("Sequence state: " + intakeSequenceState);
     
         return ( intakeSequenceState == 9 );
+    }
+
+    public int getIntakeSeqState() {
+        return intakeSequenceState;
     }
 
     // =========================================================================================

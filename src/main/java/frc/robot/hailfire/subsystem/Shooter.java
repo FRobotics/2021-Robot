@@ -55,7 +55,6 @@ public class Shooter extends Subsystem {
     private boolean updateFPID = false;
 
     //jas added for intake sequence
-    public boolean allowIntakeSequence = false;
     private boolean internalAllowIntakeSequence = false;
     private boolean carouselTurnLimitSwitch = false;
 
@@ -152,8 +151,8 @@ public class Shooter extends Subsystem {
             }
         } else { // if nothing else
             if (!spinForShooter) {
-                if ( Hailfire.intakeSeqInProg) {    //jas added
-                    carouselOutput = Hailfire.intakeSeqCarouselSpinDmd;
+                if ( Hailfire.objHailfire.intakeSeqInProg) {    //jas added
+                    carouselOutput = Hailfire.objHailfire.intakeSeqCarouselSpinDmd;
                 }
                 else {
                     carouselOutput = 0;
@@ -190,16 +189,16 @@ public class Shooter extends Subsystem {
                 pitchAim();
             } else {
                 // JAS added qualification to avoid fighting outputs...  now virtual...
-                if ( Hailfire.intakeSeqInProg ) {
-                    pitchMotor.setPercentOutput(Hailfire.intakeSeqCarouselPitchDmd);
+                if ( Hailfire.objHailfire.intakeSeqInProg ) {
+                    pitchMotor.setPercentOutput(Hailfire.objHailfire.intakeSeqCarouselPitchDmd);
                 }
                 else {
                     pitchMotor.setPercentOutput(0);
                 }        
             }
-
-            allowIntakeSequence = internalAllowIntakeSequence; //jas added for intake sequence
         }
+
+        Hailfire.objHailfire.allowIntakeSeqShooter = internalAllowIntakeSequence;
 
         // turn on lights
 

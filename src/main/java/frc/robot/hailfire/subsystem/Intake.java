@@ -8,13 +8,14 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.Encoder;  //JAS not used
 import frc.robot.base.util.Util;
 import frc.robot.hailfire.Controls;
+import frc.robot.hailfire.Hailfire;
 //import frc.robot.hailfire.Hailfire;
 import frc.robot.hailfire.IDs;
 import frc.robot.base.subsystem.Subsystem;
 import frc.robot.base.device.motor.PhoenixMotor;
 import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.motor.Motor;
-//import edu.wpi.first.networktables.NetworkTableEntry; //jas added
+import edu.wpi.first.networktables.NetworkTableEntry; //jas added
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -28,11 +29,12 @@ public class Intake extends Subsystem {
     public DigitalInput sensor = new DigitalInput(IDs.Intake.SENSOR);
 
     //jas added for intake sequence
-    public boolean allowIntakeSequence = false;
-    //private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
-    //private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
-    //private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
-    //private NetworkTableEntry intakeSeqStateNTEntry;
+    private boolean initIntakeSequence = true;
+    private NetworkTableEntry intakeSeqCarPitchDmdNTEntry;
+    private NetworkTableEntry intakeSeqCarTurnDmdNTEntry;
+    private NetworkTableEntry intakeSeqIntakeSpinDmdNTEntry;
+    private NetworkTableEntry intakeSeqStateNTEntry;
+    private boolean internalIntakeSeqInProg = false;
 
 
     //jas added for intake sequence
@@ -77,6 +79,8 @@ public class Intake extends Subsystem {
         if (Controls.Intake.ARM_DOWN()) {
             solenoid.extend();
         }
+
+        internalIntakeSeqInProg = false;
         
         // spin if solenoid is out
 
@@ -85,39 +89,40 @@ public class Intake extends Subsystem {
                 //pitchMotor.setPercentOutput(.75);
             //} else {
             spinner.setPercentOutput(1);
-            allowIntakeSequence = false;
             //}
         } else if(Controls.Intake.SPIN_BACKWARD() && solenoid.isExtended()) {
             spinner.setPercentOutput(-1);
-            allowIntakeSequence = false;
         } else {
-        //JAS add the intake sequence here because it wasn't running in hailfire periodic ??
-            //if ( Controls.Intake.INTAKE_SEQ() ) {
-                //hailfire.procIntakeSequence( initIntakeSequence );
-                //initIntakeSequence = false;
-                //intakeSeqInProg = true;
-                //spinner.setPercentOutput(Hailfire.intakeSeqIntakeSpinDmd);
-            //}
-            //else {
-                spinner.setPercentOutput(0);
-                //intakeSeqInProg = false;
+            //JAS add the intake sequence here because it wasn't running in hailfire periodic ??
+            if ( Controls.Intake.INTAKE_SEQ() && Hailfire.objHailfire.allowIntakeSeqShooter ) {
+                if ( !Hailfire.objHailfire.intakeSeqInProg ) {
+                    initIntakeSequence = true;
+                }
+                Hailfire.objHailfire.procIntakeSequence( initIntakeSequence );
+                initIntakeSequence = false;
+                spinner.setPercentOutput(Hailfire.objHailfire.intakeSeqIntakeSpinDmd);
+            }
+            else {
+                spinner.setPercentOutput(0.0);
                 // set output demands to zero.
-                //intakeSeqCarouselPitchDmd = 0.0;
-                //intakeSeqCarouselSpinDmd = 0.0;
-                //intakeSeqIntakeSpinDmd = 0.0;
+                Hailfire.objHailfire.intakeSeqCarouselPitchDmd = 0.0;
+                Hailfire.objHailfire.intakeSeqCarouselSpinDmd = 0.0;
+                Hailfire.objHailfire.intakeSeqIntakeSpinDmd = 0.0;
                 // set next time the sequence runs it will init.
-                //initIntakeSequence = true;
-            //}    
+                initIntakeSequence = true;
+            }    
         }
+
+        Hailfire.objHailfire.intakeSeqInProg = internalIntakeSeqInProg;
 
         // debug
         //System.out.println("Intake Output: " + intakeSeqIntakeSpinDmd);
         //System.out.println("Carousel Height Output: " + intakeSeqCarouselPitchDmd);
         //System.out.println("Carousel Turn Output: " + intakeSeqCarouselSpinDmd);
-        //intakeSeqIntakeSpinDmdNTEntry.setDouble(intakeSeqIntakeSpinDmd);
-        //intakeSeqCarPitchDmdNTEntry.setDouble(intakeSeqCarouselPitchDmd);
-        //intakeSeqCarTurnDmdNTEntry.setDouble(intakeSeqCarouselSpinDmd);
-        //intakeSeqStateNTEntry.setDouble(intakeSequenceState);
+        intakeSeqIntakeSpinDmdNTEntry.setDouble(Hailfire.objHailfire.intakeSeqIntakeSpinDmd);
+        intakeSeqCarPitchDmdNTEntry.setDouble(Hailfire.objHailfire.intakeSeqCarouselPitchDmd);
+        intakeSeqCarTurnDmdNTEntry.setDouble(Hailfire.objHailfire.intakeSeqCarouselSpinDmd);
+        intakeSeqStateNTEntry.setDouble(Hailfire.objHailfire.getIntakeSeqState());
 
     }
 
